@@ -23,13 +23,21 @@ use App\Http\Controllers\MapelController;
 
 
 Route::group(['prefix' => 'v1'], function () {
-    Route::resource('user', (UserController::class));
-});
+    // Routes for User management
+   
+        Route::get('/users', [UserController::class, 'index']);        // List all users
+        Route::post('/users', [UserController::class, 'store']);       // Create a new user
+        Route::get('/users/{id}', [UserController::class, 'show']);    // Show specific user
+        Route::put('/users/{id}', [UserController::class, 'update']);  // Update a user
+        Route::delete('/users/{id}', [UserController::class, 'destroy']); // Delete a user
+  
 
-Route::group(['prefix' => 'v1'], function () {
-    Route::resource('payment', (PaymentController::class));
-});
+    // Alternatively, you can use Route::apiResource if all routes are required to be authenticated
+    // // Route::apiResource('users', UserController::class)->middleware('auth:sanctum');
 
-Route::group(['prefix' => 'v1'], function () {
-    Route::resource('mapel', (MapelController::class));
+    // // Routes for Payment management
+    // Route::apiResource('payment', PaymentController::class)->middleware('auth:sanctum');
+
+    // // Routes for Mapel management
+    // Route::apiResource('mapel', MapelController::class)->middleware('auth:sanctum');
 });
