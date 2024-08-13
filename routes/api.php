@@ -2,6 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\MapelController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +17,19 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+
+Route::group(['prefix' => 'v1'], function () {
+    Route::resource('user', (UserController::class));
+});
+
+Route::group(['prefix' => 'v1'], function () {
+    Route::resource('payment', (PaymentController::class));
+});
+
+Route::group(['prefix' => 'v1'], function () {
+    Route::resource('mapel', (MapelController::class));
 });
