@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Questions_Choice;
+use App\Models\QuestionChoice;
 use Illuminate\Http\Request;
 
-class QuestionsChoiceController extends Controller
+class QuestionChoiceController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class QuestionsChoiceController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Questions_Choice $questions_Choice)
+    public function show(QuestionChoice $questionChoice)
     {
         //
     }
@@ -42,7 +42,7 @@ class QuestionsChoiceController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Questions_Choice $questions_Choice)
+    public function edit(QuestionChoice $questionChoice)
     {
         //
     }
@@ -50,7 +50,7 @@ class QuestionsChoiceController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Questions_Choice $questions_Choice)
+    public function update(Request $request, QuestionChoice $questionChoice)
     {
         //
     }
@@ -58,7 +58,7 @@ class QuestionsChoiceController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Questions_Choice $questions_Choice)
+    public function destroy(QuestionChoice $questionChoice)
     {
         //
     }

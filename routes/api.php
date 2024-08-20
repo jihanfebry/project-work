@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MapelController;
+use App\Http\Controllers\QuestionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,10 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/users/{id}', [UserController::class, 'show']);    // Show specific user
         Route::put('/users/{id}', [UserController::class, 'update']);  // Update a user
         Route::delete('/users/{id}', [UserController::class, 'destroy']); // Delete a user
+
+        Route::post('/questions', [QuestionController::class, 'store']);
+        Route::post('/questions/{id}/check', [QuestionController::class, 'checkAnswer']);
+
 
         Route::apiResource('/siswas', SiswaController::class);
 
