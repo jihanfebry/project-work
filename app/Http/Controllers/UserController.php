@@ -40,7 +40,9 @@ public function store(Request $request)
     $request->validate([
         'username' => 'required|min:3',
         'email' => 'required|email|unique:users,email',
+        'role' => 'required|in:admin, guru, siswa',
         'role' => 'required|in:admin,guru,siswa',
+
     ]);
 
     $password = substr($request->email, 0, 3) . substr($request->username, 0, 3);
