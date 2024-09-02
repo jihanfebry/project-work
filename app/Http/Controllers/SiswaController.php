@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Siswa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class SiswaController extends Controller
@@ -13,11 +14,20 @@ class SiswaController extends Controller
      */
     public function index()
     {
-        $data = DB::table('siswas')->get();
+        // $data = DB::table('siswas')->get();
+
+        // return response()->json([
+        //     'data' => $data,
+        //     // 'status' => 404
+        // ]);
+
+        $data = DB::table('siswas as s')
+            ->join('kelas as k', 's.kelas_id', '=', 'k.id')
+            ->select('s.*', 'k.kelas')
+            ->get();
 
         return response()->json([
-            'data' => $data,
-            'status' => 404
+            'data' => $data
         ]);
     }
 
@@ -34,38 +44,30 @@ class SiswaController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|min:5',
-            'birth_date' => 'date',
-            'gender' => 'in:laki-laki,perempuan',
-            'class' => '',
-            'parent' => '',
-            'phone_number' => '',
-            'email' => 'email|unique:siswas,email',
-            'addres' => ''
-        ]);
+        $created = Carbon::now();
 
         $data = [
             'name' => $request->name,
             'birth_date' => $request->birth_date,
             'gender' => $request->gender,
-            'class' => $request->class,
+            // 'class' => $request->class,
             'parent' => $request->parent,
             'phone_number' => $request->phone_number,
             'email' => $request->email,
             'addres' => $request->addres,
+            'kelas_id' => $request->kelas_id,
+            'created_at' => $created
         ];
 
         $inserted = DB::table('siswas')->insert($data);
         if ($inserted) {
-                // $siswa = DB::table('siswas')->where('name', $request->name)->first();
                 return response()->json([
                     'success' => true,
                     'data' => $data
                 ]);
             } else {
                 return response()->json([
-                    'success' => false
+                    'fail' => false
                 ], 400); // Gunakan 400 untuk kesalahan validasi
             }
 
@@ -103,32 +105,36 @@ class SiswaController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $updated = Carbon::now();
+        
         $user = Siswa::find($id);
 
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        $request->validate([
-            'name' => 'required|min:5',
-            'birth_date' => 'date|nullable',
-            'gender' => 'in:laki-laki,perempuan|nullable',
-            'class' => 'nullable|string',
-            'parent' => 'nullable|string',
-            'phone_number' => 'nullable|string',
-            'email' => 'email|unique:users,email,' . $id,
-            'addres' => 'nullable|string'  
-        ]);
+        // $request->validate([
+        //     'name' => 'required|min:5',
+        //     'birth_date' => 'date|nullable',
+        //     'gender' => 'in:laki-laki,perempuan|nullable',
+        //     'class' => 'nullable|string',
+        //     'parent' => 'nullable|string',
+        //     'phone_number' => 'nullable|string',
+        //     'email' => 'email|unique:users,email,' . $id,
+        //     'addres' => 'nullable|string'  
+        // ]);
 
         $updateSuccess = $user->update([
             'name' => $request->name,
             'birth_date' => $request->birth_date,
             'gender' => $request->gender,
-            'class' => $request->class,
+            // 'class' => $request->class,
             'parent' => $request->parent,
             'phone_number' => $request->phone_number,
             'email' => $request->email,
             'addres' => $request->addres,  
+            'kelas_id' => $request->kelas_id,  
+            'updated_at' => $updated
         ]);
 
         if ($updateSuccess) {

@@ -18,8 +18,7 @@ class UserController extends Controller
         $data = DB::table('users')->get();
 
         return response()->json([
-            'data' => $data,
-            'status' => 404
+            'data' => $data
         ]);
     }
 
@@ -61,8 +60,9 @@ public function store(Request $request)
         ]);
     } else {
         return response()->json([
-            'success' => false
-        ], 400); // Gunakan 400 untuk kesalahan validasi
+            'success' => false,
+            'message' => 'Update data failed'
+        ]);
     }
 }
 
