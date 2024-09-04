@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\payment;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -45,7 +45,8 @@ class PaymentController extends Controller
             ]); 
         }else{
             return response()->json([
-                'suscces' => false
+                'suscces' => false,
+                'message' => 'Update data failed'
             ], 403);
         };
     }
@@ -69,7 +70,7 @@ class PaymentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, payment $payment)
+    public function update(Request $request, $id)
     {
         //
     }

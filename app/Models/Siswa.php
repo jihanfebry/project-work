@@ -13,4 +13,13 @@ class Siswa extends Model
     protected $guarded = [
         'id'
     ];
+
+    public function KehadiranType()
+    {
+        return $this->belongsTo(Kehadiran::class);
+    }
+    public function KelasType()
+    {
+        return $this->hasMany(Kelas::class);
+    }
 }

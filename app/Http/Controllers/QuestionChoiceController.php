@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\QuestionChoice;
+use App\Models\QuestionOption;
 use Illuminate\Http\Request;
 
 class QuestionChoiceController extends Controller
@@ -28,48 +29,46 @@ class QuestionChoiceController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'question_text' => 'required|string',
-            'options' => 'required|array',
-            'options.*.option_text' => 'required|string',
-            'options.*.is_correct' => 'required|boolean',
-        ]);
+        foreach ($request->soal as $soal) {
+            $questionChoice = QuestionChoice::create([
+                'title' => $request->title,
+                'pertanyaan' => $soal['pertanyaan'],
+                'jawaban' => $soal['jawaban'],
+            ]);
 
-        $questionChoice = QuestionChoice::create([
-            'question_text' => $request->question_text,
-        ]);
-
-        foreach ($request->options as $option) {
-            $questionChoice->options()->create($option);
+            foreach ($soal['pilihan'] as $pilihan) {
+                QuestionOption::create([
+                    'question_choice_id' => $questionChoice->id,
+                    'pilihan' => $pilihan,
+                ]);
+            }
         }
 
-        return response()->json(['message' => 'Question and options saved successfully.'], 201);
+        return response()->json(['message' => 'Quiz created successfully'], 201);
     }
 
-    public function checkAnswer(Request $request, $id)
+    public function show($id)
     {
-        $request->validate([
-            'answers' => 'required|array',
-            'answers.*' => 'required|integer|exists:question_options,id',
-        ]);
-
-        $questionChoice = QuestionChoice::findOrFail($id);
-        $correctAnswers = $questionChoice->options()->where('is_correct', true)->pluck('id')->toArray();
-
-        if (array_diff($correctAnswers, $request->answers) || array_diff($request->answers, $correctAnswers)) {
-            return response()->json(['message' => 'Incorrect answers.'], 400);
-        }
-
-        return response()->json(['message' => 'Correct answers!'], 200);
+        $questionChoice = QuestionChoice::with('options')->findOrFail($id);
+        return response()->json($questionChoice);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(QuestionChoice $questionChoice)
+    public function checkAnswer(Request $request, $questionId)
     {
-        //
+    $questionChoice = QuestionChoice::with('options')->findOrFail($questionId);
+    $userAnswer = $request->jawaban;
+
+    $isCorrect = $questionChoice->jawaban === $userAnswer;
+
+    return response()->json([
+        'title' => $questionChoice->title,
+        'question' => $questionChoice->pertanyaan,
+        'user_answer' => $userAnswer,
+        'correct_answer' => $isCorrect ? null : $questionChoice->jawaban,
+        'is_correct' => $isCorrect
+    ]);
     }
+
 
     /**
      * Show the form for editing the specified resource.

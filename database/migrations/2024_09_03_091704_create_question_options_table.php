@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('question_options', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('question_choice_id')->constrained('question_choices')->onDelete('cascade');
-            $table->string('option_text');
-            $table->boolean('is_correct')->default(false);
+            $table->unsignedBigInteger('question_choice_id');
+            $table->string('pilihan');
             $table->timestamps();
+
+            $table->foreign('question_choice_id')->references('id')->on('question_choices')->onDelete('cascade');
         });
     }
 
