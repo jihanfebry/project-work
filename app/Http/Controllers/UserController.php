@@ -68,7 +68,6 @@ class UserController extends Controller
             'name' => 'sometimes|string|max:255',
             'username' => 'required|min:3',
             'email' => 'required|email|unique:users,email',
-            'password' => 'sometimes|string|min:8',
             'role' => 'required|in:admin,guru,siswa',
         ]);
     
@@ -113,34 +112,35 @@ class UserController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    {
-        // Cek apakah user ada
-        $user = User::find($id);
+{
+    // Cek apakah user ada
+    $user = User::find($id);
 
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
-
-        // Validasi input
-        $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'username' => 'sometimes|string|max:255',
-            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $id,
-            'password' => 'sometimes|string|min:8',
-            'role' => 'sometimes|string|in:admin,guru,siswa',
-        ]);
-
-        // Update field yang ada dalam request
-        $user->update([
-            'name' => $request->name ?? $user->name,
-            'username' => $request->username ?? $user->username,
-            'email' => $request->email ?? $user->email,
-            'password' => $request->password ? Hash::make($request->password) : $user->password,
-            'role' => $request->role ?? $user->role,
-        ]);
-
-        return response()->json(['message' => 'User updated successfully', 'data' => $user]);
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
     }
+
+    // Validasi input
+    $request->validate([
+        'name' => 'sometimes|string|max:255',
+        'username' => 'sometimes|string|max:255|unique:users,username,' . $id,
+        'email' => 'sometimes|string|email|max:255|unique:users,email,' . $id,
+        'password' => 'sometimes|string|min:8',
+        'role' => 'sometimes|string|in:admin,guru,siswa',
+    ]);
+
+    // Update field yang ada dalam request
+    $user->update([
+        'name' => $request->name ?? $user->name,
+        'username' => $request->username ?? $user->username,
+        'email' => $request->email ?? $user->email,
+        'password' => $request->password ? Hash::make($request->password) : $user->password,
+        'role' => $request->role ?? $user->role,
+    ]);
+
+    return response()->json(['message' => 'User updated successfully', 'data' => $user]);
+}
+
 
     /**
      * Remove the specified resource from storage.
