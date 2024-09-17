@@ -10,6 +10,7 @@ use App\Http\Controllers\MapelController;
 use App\Http\Controllers\KehadiranController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\QuestionChoiceController;
+use App\Http\Controllers\TekaTekiController;
 
 
 /*
@@ -46,6 +47,10 @@ Route::group(['prefix' => 'v1'], function () {
         Route::get('/question/{id}', [QuestionChoiceController::class, 'show']);
         Route::post('/question/{id}/check', [QuestionChoiceController::class, 'checkAnswer']);
 
+
+        Route::post('/add-teka-teki', [TekaTekiController::class, 'store']); // Untuk menambah teka-teki baru oleh admin
+        Route::get('/teka-teki', [TekaTekiController::class, 'index']); // Untuk mendapatkan teka-teki
+        Route::post('/teka-teki/cek', [TekaTekiController::class, 'cekJawaban']); // Untuk mengecek jawaban
 
 
         Route::apiResource('/siswas', SiswaController::class);
