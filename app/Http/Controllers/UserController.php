@@ -35,40 +35,39 @@ class UserController extends Controller
      */
 
 
-public function store(Request $request)
-{
-    $request->validate([
-        'username' => 'required|min:3',
-        'email' => 'required|email|unique:users,email',
-        'role' => 'required|in:admin, guru, siswa',
-        'role' => 'required|in:admin,guru,siswa',
-
-    ]);
-
-    $password = substr($request->email, 0, 3) . substr($request->username, 0, 3);
-
-    $inserted = DB::table('users')->insert([
-        'username' => $request->username,
-        'email' => $request->email,
-        'password' => Hash::make($password),
-        'role' => $request->role,
-    ]);
-
-    if ($inserted) {
-        $user = DB::table('users')->where('email', $request->email)->first();
-        return response()->json([
-            'success' => true,
-            'data' => $user
-        ]);
-    } else {
-        return response()->json([
-            'success' => false,
-            'message' => 'Update data failed'
-        ]);
+    public function store(Request $request)
+    {
+         // Validasi input
+         $request->validate([
+             'username' => 'required|min:3',
+             'email' => 'required|email|unique:users,email',
+             'role' => 'required|in:admin,guru,siswa',
+             'password' => 'required|min:3'
+         ]);
+     
+         // Sisipkan data ke dalam tabel users
+         $inserted = DB::table('users')->insert([
+             'username' => $request->username,
+             'email' => $request->email,
+             'password' => Hash::make($request->password),
+             'role' => $request->role,
+         ]);
+     
+         // Cek hasil penyisipan dan kembalikan respons yang sesuai
+         if ($inserted) {
+             $user = DB::table('users')->where('email', $request->email)->first();
+             return response()->json([
+                 'success' => true,
+                 'data' => $user
+             ]);
+         } else {
+             return response()->json([
+                 'success' => false,
+                 'message' => 'Insert data failed'
+             ]);
+        }
     }
-}
-
-
+     
     /**
      * Display the specified resource.
      */
@@ -96,8 +95,6 @@ public function store(Request $request)
      */
     public function update(Request $request, string $id)
     {
-
-        
         $user = User::find($id);
 
         if (!$user) {
@@ -111,7 +108,6 @@ public function store(Request $request)
             'role' => 'sometimes|string|in:admin,guru,siswa',
         ]);
         
-        $password = substr($request->email, 0, 3).substr($request->username, 0, 3);
         if($request->password){
             User::where('id', $id)->update([
                 'username' => $request->username,
@@ -120,9 +116,9 @@ public function store(Request $request)
                 'role' => $request->role,
             ]);
 
-        return response()->json($user);
+            return response()->json($user);
 
-    }
+        }
     }
     /**
      * Remove the specified resource from storage.

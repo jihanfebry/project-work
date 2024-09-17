@@ -9,8 +9,8 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MapelController;
 use App\Http\Controllers\KehadiranController;
 use App\Http\Controllers\KelasController;
-use App\Http\Controllers\QuestionController;
-
+use App\Http\Controllers\QuestionChoiceController;
+use App\Http\Controllers\LoginAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,24 +27,24 @@ use App\Http\Controllers\QuestionController;
 //     return $request->user();
 // });
 
+    Route::post('/login', [LoginAuthController::class, 'loginAuth']);
 
-Route::group(['prefix' => 'v1'], function () {
-    // Routes for User management
-   
-        Route::get('/users', [UserController::class, 'index']);        // List all users
-        Route::post('/users', [UserController::class, 'store']);       // Create a new user
-        Route::get('/users/{id}', [UserController::class, 'show']);    // Show specific user
-        Route::put('/users/{id}', [UserController::class, 'update']);  // Update a user
-        Route::delete('/users/{id}', [UserController::class, 'destroy']); // Delete a user
+    // Route::middleware('IsLogin')->post('/logout', [LoginAuthController::class, 'logout']);
 
+    Route::group(['prefix' => 'v1'], function () {
+    
+        Route::get('/users', [UserController::class, 'index'])->middleware(['auth:sactum']);
+        Route::post('/users', [UserController::class, 'store']);
+        Route::get('/users/{id}', [UserController::class, 'show']);
+        Route::put('/users/{id}', [UserController::class, 'update']);
+        Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
         Route::apiResource('/payment', PaymentController::class);
 
-        Route::post('/questions', [QuestionController::class, 'store']);
-        Route::post('/questions/{id}/check', [QuestionController::class, 'checkAnswer']);
+        Route::post('/questions', [QuestionChoiceController::class, 'store']);
+        Route::post('/questions/{id}/check', [QuestionChoiceController::class, 'checkAnswer']);
 
-
-        Route::apiResource('/siswas', SiswaController::class);
+        // Route::apiResource('/siswas', SiswaController::class);
 
         Route::apiResource('/siswa', SiswaController::class);
 
@@ -56,14 +56,5 @@ Route::group(['prefix' => 'v1'], function () {
 
         Route::apiResource('/kelas', KelasController::class);
         Route::get('/listSiswaByKelas', [KelasController::class, 'listSiswaByKelas']);
-
-
-    // Alternatively, you can use Route::apiResource if all routes are required to be authenticated
-    // // Route::apiResource('users', UserController::class)->middleware('auth:sanctum');
-
-    // // Routes for Payment management
-    // Route::apiResource('payment', PaymentController::class)->middleware('auth:sanctum');
-
-    // // Routes for Mapel management
-    // Route::apiResource('mapel', MapelController::class)->middleware('auth:sanctum');
-});
+        
+    });
