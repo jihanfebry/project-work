@@ -16,11 +16,13 @@ return new class extends Migration
             $table->string('name');
             $table->string('birth_date')->nullable();
             $table->enum ('gender', ['laki-laki', 'perempuan'])->nullable();
-            $table->string('class')->nullable();
+            // $table->string('class')->nullable();
             $table->string('parent')->nullable();
             $table->string('phone_number')->nullable();
             $table->string('email')->nullable();
             $table->string('addres')->nullable();
+            $table->unsignedBigInteger('kelas_id');
+            $table->foreign('kelas_id')->references('id')->on('kelas');
             $table->timestamps();
         });
     }

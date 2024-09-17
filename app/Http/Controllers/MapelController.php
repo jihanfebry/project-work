@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\mapel;
+use App\Models\Mapel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class MapelController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a l  isting of the resource.
      */
     public function index()
     {
@@ -17,7 +17,7 @@ class MapelController extends Controller
 
         return response()->json([
             'data' => $data
-        ], 201);
+        ]);
     }
 
     /**
@@ -36,25 +36,23 @@ class MapelController extends Controller
         $data= DB::table('mapels')->insert([
             'material' => $request->material,
             'task' => $request->task,
-            'answer' => $request->answer
+            'answer' => $request->answer,
         ]);
 
         if ($data) {
             return response()->json([
-                'suscces' => true,
+                'success' => true,
                 'data' => $data
             ]); 
         }else{
             return response()->json([
-                'suscces' => false
+                'success' => false,
+                'message' => 'Update data failed'
             ], 403);
         };
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(mapel $mapel)
+    public function show(Mapel $mapel)
     {
         //
     }
@@ -62,7 +60,7 @@ class MapelController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(mapel $mapel)
+    public function edit(Mapel $mapel)
     {
         //
     }
@@ -70,10 +68,37 @@ class MapelController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, mapel $mapel)
-    {
-        //
+    public function update(Request $request, Mapel $mapel)
+{
+    if (!$mapel) {
+        return response()->json(['message' => 'Mapel tidak ditemukan'], 404);
     }
+
+    $request->validate([
+        'material' => 'required|min:5',
+        'task' => 'nullable',
+        'answer' => 'required|min:2'
+    ]);
+
+    $updateSuccess = $mapel->update([
+        'material' => $request->input('material'),
+        'task' => $request->input('task'),
+        'answer' => $request->input('answer')  
+    ]);
+
+    if ($updateSuccess) {
+        return response()->json([
+            'success' => true,
+            'data' => $mapel
+        ]);
+    } else {
+        return response()->json([
+            'success' => false,
+            'message' => 'Update gagal'
+        ], 500);
+    }
+}
+
 
     /**
      * Remove the specified resource from storage.

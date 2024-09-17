@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('question_choices', function (Blueprint $table) {
+        Schema::create('teka_tekis', function (Blueprint $table) {
             $table->id();
-            $table->string('question_text');
+            $table->string('gambar'); // URL atau path ke gambar
+            $table->string('jawaban'); // Jawaban yang benar
+            $table->string('clue'); // Petunjuk atau clue
             $table->timestamps();
         });
     }
@@ -23,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('question_choices');
+        Schema::dropIfExists('teka_tekis');
     }
 };
