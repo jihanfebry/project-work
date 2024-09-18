@@ -47,6 +47,8 @@ use App\Http\Controllers\LoginAuthController;
     
         Route::post('/question', [QuestionChoiceController::class, 'store']);
         Route::get('/question/{id}', [QuestionChoiceController::class, 'show']);
+        Route::get('/question/{id}', [QuestionChoiceController::class, 'update']);
+        Route::get('/question/{id}', [QuestionChoiceController::class, 'destroy']);
         Route::post('/question/{id}/check', [QuestionChoiceController::class, 'checkAnswer']);
     
         Route::post('/add-teka-teki', [TekaTekiController::class, 'store']); // Untuk menambah teka-teki baru oleh admin
