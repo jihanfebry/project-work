@@ -63,36 +63,70 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi input
-        $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'username' => 'required|min:3',
-            'email' => 'required|email|unique:users,email',
-            'role' => 'required|in:admin,guru,siswa',
-        ]);
+        \Log::info('Request Data:', $request->all());
     
-        // Membuat password berdasarkan kombinasi email dan username
-        $password = substr($request->email, 0, 3) . substr($request->username, 0, 3);
+        // Periksa apakah data yang dikirim adalah array dari pengguna
+        $isArray = isset($request->users);
     
-        // Menggunakan model User untuk menyimpan data baru
-        $user = new User();
-        $user->name = $request->name;
-        $user->username = $request->username;
-        $user->email = $request->email;
-        $user->password = Hash::make($password);
-        $user->role = $request->role;
+        if ($isArray) {
+            // Validasi array data pengguna
+            $data = $request->validate([
+                'users.*.name' => 'sometimes|string|max:255',
+                'users.*.username' => 'required|min:3',
+                'users.*.email' => 'required|email|unique:users,email',
+                'users.*.role' => 'required|in:admin,guru,siswa',
+            ]);
     
-        if ($user->save()) {
+            $users = $data['users'];
+        } else {
+            // Validasi data tunggal
+            $data = $request->validate([
+                'name' => 'sometimes|string|max:255',
+                'username' => 'required|min:3',
+                'email' => 'required|email|unique:users,email',
+                'role' => 'required|in:admin,guru,siswa',
+            ]);
+    
+            $users = [$data];
+        }
+    
+        $insertedUsers = [];
+        $errors = [];
+    
+        foreach ($users as $userData) {
+            $password = substr($userData['email'], 0, 3) . substr($userData['username'], 0, 3);
+    
+            try {
+                $user = new User();
+                $user->name = $userData['name'] ?? null;
+                $user->username = $userData['username'];
+                $user->email = $userData['email'];
+                $user->password = Hash::make($password);
+                $user->role = $userData['role'];
+    
+                if ($user->save()) {
+                    $insertedUsers[] = $user;
+                } else {
+                    $errors[] = ['email' => $userData['email'], 'error' => 'Failed to insert user'];
+                }
+            } catch (\Exception $e) {
+                $errors[] = ['email' => $userData['email'], 'error' => $e->getMessage()];
+            }
+        }
+    
+        if (empty($errors)) {
             return response()->json([
                 'success' => true,
-                'data' => $user
+                'data' => $insertedUsers
             ]);
         } else {
             return response()->json([
-                'success' => false
-            ], 400); // Status HTTP 400 untuk kesalahan validasi atau request
+                'success' => false,
+                'errors' => $errors
+            ], 400);
         }
     }
+    
 
     /**
      * Display the specified resource.
