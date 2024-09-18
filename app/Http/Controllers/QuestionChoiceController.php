@@ -13,7 +13,32 @@ class QuestionChoiceController extends Controller
      */
     public function index()
     {
-        //
+        // Ambil semua QuestionChoice beserta pilihan opsinya
+    $questionChoices = QuestionChoice::with('options')->get();
+
+    // Siapkan array untuk response
+    $response = [];
+
+    // Loop melalui setiap QuestionChoice
+    foreach ($questionChoices as $questionChoice) {
+        // Siapkan array pilihan (opsi jawaban)
+        $options = [];
+        foreach ($questionChoice->options as $option) {
+            $options[] = $option->pilihan;  // Mengambil pilihan dari QuestionOption
+        }
+
+        // Siapkan setiap soal untuk dimasukkan ke response
+        $response[] = [
+            'id' => $questionChoice->id,
+            'title' => $questionChoice->title,              // Judul kuis
+            'pertanyaan' => $questionChoice->pertanyaan,    // Pertanyaan
+            'jawaban' => $questionChoice->jawaban,          // Jawaban benar
+            'pilihan' => $options                           // Pilihan jawaban
+        ];
+    }
+
+    // Return response dalam bentuk JSON
+    return response()->json($response, 200);
     }
 
     /**
@@ -93,41 +118,8 @@ class QuestionChoiceController extends Controller
 
 public function show($id)
 {
-    // Temukan QuestionChoice berdasarkan ID
-    $questionChoice = QuestionChoice::with('options')->find($id);
-
-    // Jika tidak ditemukan, kirimkan response error
-    if (!$questionChoice) {
-        return response()->json(['message' => 'Quiz not found'], 404);
-    }
-
-    // Persiapkan response soal dan pilihan
-    $soalArray = [];
-    foreach ($questionChoice->options as $option) {
-        $soalArray[] = [
-            'pertanyaan' => $questionChoice->pertanyaan,
-            'pilihan' => $option->pilihan,
-            'jawaban' => $questionChoice->jawaban,
-        ];
-    }
+    
 }
-
-
-    // public function checkAnswer(Request $request, $questionId)
-    // {
-    //     $questionChoice = QuestionChoice::with('options')->findOrFail($questionId);
-    //     $userAnswer = $request->jawaban;
-
-    //     $isCorrect = $questionChoice->jawaban === $userAnswer;
-
-    //     return response()->json([
-    //         'title' => $questionChoice->title,
-    //         'question' => $questionChoice->pertanyaan,
-    //         'user_answer' => $userAnswer,
-    //         'correct_answer' => $isCorrect ? null : $questionChoice->jawaban,
-    //         'is_correct' => $isCorrect
-    //     ]);
-    // }
 
     
  
