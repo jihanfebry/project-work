@@ -9,10 +9,10 @@ class QuestionChoice extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'pertanyaan', 'jawaban'];
+    protected $fillable = ['title'];
 
-    public function options()
+    public function questions()
     {
-        return $this->hasMany(QuestionOption::class);
+        return $this->hasMany(Question::class);
     }
 }

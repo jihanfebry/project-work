@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\QuestionChoice;
 use App\Models\QuestionOption;
+use App\Models\Question;
 use Illuminate\Http\Request;
 
 class QuestionChoiceController extends Controller
@@ -13,33 +14,45 @@ class QuestionChoiceController extends Controller
      */
     public function index()
     {
-        // Ambil semua QuestionChoice beserta pilihan opsinya
-    $questionChoices = QuestionChoice::with('options')->get();
-
-    // Siapkan array untuk response
-    $response = [];
-
-    // Loop melalui setiap QuestionChoice
-    foreach ($questionChoices as $questionChoice) {
-        // Siapkan array pilihan (opsi jawaban)
-        $options = [];
-        foreach ($questionChoice->options as $option) {
-            $options[] = $option->pilihan;  // Mengambil pilihan dari QuestionOption
+        // Ambil semua QuestionChoice beserta questions dan options-nya
+        $questionChoices = QuestionChoice::with('questions.options')->get();
+    
+        // Siapkan array untuk response
+        $response = [];
+    
+        // Loop melalui setiap QuestionChoice
+        foreach ($questionChoices as $questionChoice) {
+            $questionsArray = [];
+    
+            // Loop melalui setiap pertanyaan dari kuis
+            foreach ($questionChoice->questions as $question) {
+                $options = [];
+    
+                // Ambil semua opsi dari pertanyaan tersebut
+                foreach ($question->options as $option) {
+                    $options[] = $option->pilihan;
+                }
+    
+                // Masukkan pertanyaan ke array tanpa ID
+                $questionsArray[] = [
+                    'pertanyaan' => $question->pertanyaan,
+                    'jawaban' => $question->jawaban,
+                    'pilihan' => $options
+                ];
+            }
+    
+            // Siapkan setiap kuis untuk dimasukkan ke response
+            $response[] = [
+                'id' => $questionChoice->id,
+                'title' => $questionChoice->title,
+                'questions' => $questionsArray
+            ];
         }
-
-        // Siapkan setiap soal untuk dimasukkan ke response
-        $response[] = [
-            'id' => $questionChoice->id,
-            'title' => $questionChoice->title,              // Judul kuis
-            'pertanyaan' => $questionChoice->pertanyaan,    // Pertanyaan
-            'jawaban' => $questionChoice->jawaban,          // Jawaban benar
-            'pilihan' => $options                           // Pilihan jawaban
-        ];
+    
+        // Return response dalam bentuk JSON
+        return response()->json($response, 200);
     }
-
-    // Return response dalam bentuk JSON
-    return response()->json($response, 200);
-    }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -52,77 +65,63 @@ class QuestionChoiceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    // public function store(Request $request)
-    // {
-    //     foreach ($request->soal as $soal) {
-    //         $questionChoice = QuestionChoice::create([
-    //             'title' => $request->title,
-    //             'pertanyaan' => $soal['pertanyaan'],
-    //             'jawaban' => $soal['jawaban'],
-    //         ]);
-
-    //         foreach ($soal['pilihan'] as $pilihan) {
-    //             QuestionOption::create([
-    //                 'question_choice_id' => $questionChoice->id,
-    //                 'pilihan' => $pilihan,
-    //             ]);
-    //         }
-    //     }
-
-    //     return response()->json(['message' => 'Quiz created successfully'], 201);
-    // }
-
     public function store(Request $request)
-{
-    $response = [];
-
-    foreach ($request->all() as $quizData) {
-        // Siapkan array untuk menyimpan soal
-        $soalArray = [];
-
-        foreach ($quizData['soal'] as $soal) {
-            // Buat entri untuk QuestionChoice (pertanyaan dan jawaban)
+    {
+        $response = [];
+    
+        foreach ($request->all() as $quizData) {
+            // Buat QuestionChoice
             $questionChoice = QuestionChoice::create([
-                'title' => $quizData['title'],           // Menyimpan judul kuis
-                'pertanyaan' => $soal['pertanyaan'],     // Menyimpan pertanyaan
-                'jawaban' => $soal['jawaban'],           // Menyimpan jawaban benar
+                'title' => $quizData['title']
             ]);
-
-            // Buat entri untuk setiap pilihan (opsi jawaban)
-            foreach ($soal['pilihan'] as $pilihan) {
-                QuestionOption::create([
+    
+            $questionsArray = [];
+    
+            // Simpan setiap pertanyaan
+            foreach ($quizData['soal'] as $soal) {
+                // Buat entri untuk setiap pertanyaan
+                $question = Question::create([
                     'question_choice_id' => $questionChoice->id,
-                    'pilihan' => $pilihan,               // Menyimpan pilihan jawaban
+                    'pertanyaan' => $soal['pertanyaan'],
+                    'jawaban' => $soal['jawaban'],
                 ]);
+    
+                // Simpan setiap pilihan jawaban
+                foreach ($soal['pilihan'] as $pilihan) {
+                    QuestionOption::create([
+                        'question_id' => $question->id,
+                        'pilihan' => $pilihan,
+                    ]);
+                }
+    
+                // Masukkan pertanyaan ke array tanpa ID
+                $questionsArray[] = [
+                    'pertanyaan' => $soal['pertanyaan'],
+                    'jawaban' => $soal['jawaban'],
+                    'pilihan' => $soal['pilihan']
+                ];
             }
-
-            // Siapkan soal untuk response
-            $soalArray[] = [
-                'pertanyaan' => $soal['pertanyaan'],
-                'pilihan' => $soal['pilihan'],
-                'jawaban' => $soal['jawaban']
+    
+            // Siapkan setiap kuis untuk dimasukkan ke response
+            $response[] = [
+                'id' => $questionChoice->id,
+                'title' => $questionChoice->title,
+                'questions' => $questionsArray
             ];
         }
+    
+        return response()->json($response, 201);
+    }
+    
 
-        // Siapkan quiz untuk response
-        $response[] = [
-            'id' => $questionChoice->id,
-            'title' => $quizData['title'],
-            'soal' => $soalArray
-        ];
+    /**
+     * Display the specified resource.
+     */
+    public function show(QuestionChoice $questionChoice)
+    {
+        //
     }
 
-    return response()->json($response, 201);
-}
-
-
-public function show($id)
-{
-    
-}
-
-    
- 
     /**
      * Show the form for editing the specified resource.
      */
@@ -136,7 +135,7 @@ public function show($id)
      */
     public function update(Request $request, QuestionChoice $questionChoice)
     {
-        
+        //
     }
 
     /**
@@ -144,7 +143,6 @@ public function show($id)
      */
     public function destroy(QuestionChoice $questionChoice)
     {
-        
-
+        //
     }
 }

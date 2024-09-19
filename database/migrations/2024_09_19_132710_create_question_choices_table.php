@@ -13,9 +13,7 @@ return new class extends Migration
     {
         Schema::create('question_choices', function (Blueprint $table) {
             $table->id();
-            $table->string('title');  
-            $table->text('pertanyaan');
-            $table->string('jawaban');
+            $table->string('title');
             $table->timestamps();
         });
     }
