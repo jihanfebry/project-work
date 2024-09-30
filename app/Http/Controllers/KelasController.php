@@ -13,20 +13,26 @@ class KelasController extends Controller
      */
     public function index()
     {
-        $data = DB::table('kelas')
-        ->join('siswas', 'siswas.kelas_id', '=', 'kelas.id')
-        ->select('kelas.id', 'kelas.kelas', DB::raw('GROUP_CONCAT(siswas.name) as name_siswa'))
-        ->groupBy('kelas.id', 'kelas.kelas')
-        ->get();
 
-        $data = $data->map(function($item) {
-            $item->name_siswa = explode(',', $item->name_siswa);
-            return $item;
-        });
+        $data = DB::table('kelas')->get();
 
         return response()->json([
             'data' => $data
         ]);
+        // $data = DB::table('kelas')
+        // ->join('siswas', 'siswas.kelas_id', '=', 'kelas.id')
+        // ->select('kelas.id', 'kelas.kelas', DB::raw('GROUP_CONCAT(siswas.name) as name_siswa'))
+        // ->groupBy('kelas.id', 'kelas.kelas')
+        // ->get();
+
+        // $data = $data->map(function($item) {
+        //     $item->name_siswa = explode(',', $item->name_siswa);
+        //     return $item;
+        // });
+
+        // return response()->json([
+        //     'data' => $data
+        // ]);
     }
 
     public function listSiswaByKelas()

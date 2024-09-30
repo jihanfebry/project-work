@@ -92,13 +92,11 @@ class GuruController extends Controller
         }
 
         $request->validate([
-            'name' => 'required|string|max:255',
             'no_handphone' => 'required|string|max:15',
             'email' => 'required|email|unique:gurus,email,' . $id,
         ]);
 
         $updateSuccess = $user->update([
-            'name' => $request->name,
             'no_handphone' => $request->no_handphone,
             'email' => $request->email,
             'updated_at' => $updated

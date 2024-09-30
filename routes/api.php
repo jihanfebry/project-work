@@ -55,10 +55,8 @@ use App\Http\Controllers\LoginAuthController;
         Route::get('/teka-teki', [TekaTekiController::class, 'index']); // Untuk mendapatkan teka-teki
         Route::post('/teka-teki/cek', [TekaTekiController::class, 'cekJawaban']); // Untuk mengecek jawaban
     
-        Route::apiResource('/siswas', SiswaController::class);
-    
-    
         Route::apiResource('/siswa', SiswaController::class);
+        Route::get('/list-siswa', [SiswaController::class, 'listSiswa']);
     
         Route::apiResource('/guru', GuruController::class);
     
@@ -69,8 +67,3 @@ use App\Http\Controllers\LoginAuthController;
         Route::apiResource('/kelas', KelasController::class);
         Route::get('/listSiswaByKelas', [KelasController::class, 'listSiswaByKelas']);
     });
-    
-
-        
-  
-

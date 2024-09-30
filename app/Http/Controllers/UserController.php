@@ -38,71 +38,87 @@ class UserController extends Controller
 
 
     public function store(Request $request)
-{
-    \Log::info('Request Data:', $request->all());
+    {
+        \Log::info('Request Data:', $request->all());
 
-    // Periksa apakah data yang dikirim adalah array dari pengguna
-    $isArray = isset($request->users);
+        // Periksa apakah data yang dikirim adalah array dari pengguna
+        $isArray = isset($request->users);
 
-    if ($isArray) {
-        // Validasi array data pengguna
-        $data = $request->validate([
-            'users.*.name' => 'required|string|max:255',
-            'users.*.username' => 'required|min:3',
-            'users.*.email' => 'required|email|unique:users,email',
-            'users.*.role' => 'required|in:admin,guru,siswa',
-        ]);
-
-        $users = $data['users'];
-    } else {
-        // Validasi data tunggal
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'username' => 'required|min:3',
-            'email' => 'required|email|unique:users,email',
-            'role' => 'required|in:admin,guru,siswa',
-        ]);
-
-        $users = [$data];
-    }
-
-    $insertedUsers = [];
-    $errors = [];
-
-    foreach ($users as $user) {
-        $password = substr($user['email'], 0, 3) . substr($user['username'], 0, 3);
-
-        try {
-            $inserted = DB::table('users')->insert([
-                'name' => $user['name'],
-                'username' => $user['username'],
-                'email' => $user['email'],
-                'password' => Hash::make($password),
-                'role' => $user['role'],
+        if ($isArray) {
+            // Validasi array data pengguna
+            $data = $request->validate([
+                'users.*.name' => 'required|string|max:255',
+                'users.*.username' => 'required|min:3',
+                'users.*.email' => 'required|email|unique:users,email',
+                'users.*.role' => 'required|in:admin,guru,siswa',
             ]);
 
-            if ($inserted) {
-                $insertedUsers[] = DB::table('users')->where('email', $user['email'])->first();
-            } else {
-                $errors[] = ['email' => $user['email'], 'error' => 'Failed to insert user'];
+            $users = $data['users'];
+        } else {
+            // Validasi data tunggal
+            $data = $request->validate([
+                'name' => 'required|string|max:255',
+                'username' => 'required|min:3',
+                'email' => 'required|email|unique:users,email',
+                'role' => 'required|in:admin,guru,siswa',
+            ]);
+
+            $users = [$data];
+        }
+
+        $insertedUsers = [];
+        $errors = [];
+
+        foreach ($users as $user) {
+            $password = substr($user['email'], 0, 3) . substr($user['username'], 0, 3);
+
+            try {
+                $inserted = DB::table('users')->insertGetId([
+                    'name' => $user['name'],
+                    'username' => $user['username'],
+                    'email' => $user['email'],
+                    'password' => Hash::make($password),
+                    'role' => $user['role'],
+                ]);
+                
+                if ($inserted) {
+                    if ($user['role'] === 'siswa') {
+                        // Jika role adalah siswa, insert ke tabel siswas
+                        $inserted_siswa = DB::table('siswas')->insert([
+                            'name' => $user['name'],
+                            'user_id' => $inserted
+                        ]);
+                    } elseif ($user['role'] === 'guru') {
+                        // Jika role adalah guru, insert ke tabel gurus
+                        $inserted_guru = DB::table('gurus')->insert([
+                            'name' => $user['name'],
+                            'user_id' => $inserted
+                        ]);
+                    }
+                
+                    // Tambahkan user yang baru saja dimasukkan ke dalam array $insertedUsers
+                    $insertedUsers[] = DB::table('users')->where('email', $user['email'])->first();
+                } else {
+                    // Jika gagal insert ke tabel 'users', masukkan error ke dalam array $errors
+                    $errors[] = ['email' => $user['email'], 'error' => 'Failed to insert user'];
+                }
+            } catch (\Exception $e) {
+                $errors[] = ['email' => $user['email'], 'error' => $e->getMessage()];
             }
-        } catch (\Exception $e) {
-            $errors[] = ['email' => $user['email'], 'error' => $e->getMessage()];
+        }
+
+        if (empty($errors)) {
+            return response()->json([
+                'success' => true,
+                'data' => $insertedUsers
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'errors' => $errors
+            ], 400);
         }
     }
-
-    if (empty($errors)) {
-        return response()->json([
-            'success' => true,
-            'data' => $insertedUsers
-        ]);
-    } else {
-        return response()->json([
-            'success' => false,
-            'errors' => $errors
-        ], 400);
-    }
-}
     /**
      * Display the specified resource.
      */
