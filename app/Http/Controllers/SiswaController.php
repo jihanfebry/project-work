@@ -14,13 +14,16 @@ class SiswaController extends Controller
      */
     public function index()
     {
-        // $data = DB::table('siswas')->get();
+        $data = DB::table('siswas')->get();
 
-        // return response()->json([
-        //     'data' => $data,
-        //     // 'status' => 404
-        // ]);
+        return response()->json([
+            'data' => $data,
+            // 'status' => 404
+        ]);
+    }
 
+    public function listSiswa()
+    {
         $data = DB::table('siswas as s')
             ->join('kelas as k', 's.kelas_id', '=', 'k.id')
             ->select('s.*', 'k.kelas')
