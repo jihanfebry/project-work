@@ -45,10 +45,6 @@ use App\Http\Controllers\LoginAuthController;
     
         Route::apiResource('/payment', PaymentController::class);
     
-<<<<<<< HEAD
-
-=======
->>>>>>> 75a6fad97a3d37fd9777dbf609efe34269761bb9
         Route::get('/question', [QuestionChoiceController::class, 'index']);
         Route::post('/question', [QuestionChoiceController::class, 'store']);
         Route::get('/question/{id}', [QuestionChoiceController::class, 'show']);
