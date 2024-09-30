@@ -32,26 +32,7 @@ use App\Http\Controllers\LoginAuthController;
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {    
 
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
 
-Route::prefix('question-essays')->group(function () {
-    Route::get('/', [QuestionEssayController::class, 'index']);
-    Route::post('/', [QuestionEssayController::class, 'store']);
-    Route::get('/{questionEssay}', [QuestionEssayController::class, 'show']);
-    Route::put('/{questionEssay}', [QuestionEssayController::class, 'update']);
-    Route::delete('/{questionEssay}', [QuestionEssayController::class, 'destroy']);
-});
-
-Route::post('/essay-answers', [EssayAnswerController::class, 'store']); 
-Route::put('/essay-answers/{id}', [EssayAnswerController::class, 'update']);
-Route::get('/essay-answers/question/{question_id}', [EssayAnswerController::class, 'showByQuestion']);
-
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-
-//     return $request->user();
-// });
 
     Route::post('/login', [LoginAuthController::class, 'login'])->name('login');
 
