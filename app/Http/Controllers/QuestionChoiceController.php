@@ -66,52 +66,58 @@ class QuestionChoiceController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $response = [];
-    
-        foreach ($request->all() as $quizData) {
-            // Buat QuestionChoice
-            $questionChoice = QuestionChoice::create([
-                'title' => $quizData['title']
+{
+    // Validasi request
+    $validatedData = $request->validate([
+        'title' => 'required|string|max:255',
+        'soal' => 'required|array|min:1',
+        'soal.*.pertanyaan' => 'required|string|max:255',
+        'soal.*.jawaban' => 'required|string|max:255',
+        'soal.*.pilihan' => 'required|array|min:4', // Minimal 4 pilihan jawaban
+        'soal.*.pilihan.*' => 'required|string|max:255' // Pilihan jawaban
+    ]);
+
+    $response = [];
+
+    // Buat entri untuk QuestionChoice
+    $questionChoice = QuestionChoice::create([
+        'title' => $validatedData['title']
+    ]);
+
+    // Loop melalui soal
+    foreach ($validatedData['soal'] as $soal) {
+        $question = Question::create([
+            'question_choice_id' => $questionChoice->id,
+            'pertanyaan' => $soal['pertanyaan'],
+            'jawaban' => $soal['jawaban'],
+        ]);
+
+        // Simpan setiap pilihan jawaban
+        foreach ($soal['pilihan'] as $pilihan) {
+            QuestionOption::create([
+                'question_id' => $question->id,
+                'pilihan' => $pilihan,
             ]);
-    
-            $questionsArray = [];
-    
-            // Simpan setiap pertanyaan
-            foreach ($quizData['soal'] as $soal) {
-                // Buat entri untuk setiap pertanyaan
-                $question = Question::create([
-                    'question_choice_id' => $questionChoice->id,
-                    'pertanyaan' => $soal['pertanyaan'],
-                    'jawaban' => $soal['jawaban'],
-                ]);
-    
-                // Simpan setiap pilihan jawaban
-                foreach ($soal['pilihan'] as $pilihan) {
-                    QuestionOption::create([
-                        'question_id' => $question->id,
-                        'pilihan' => $pilihan,
-                    ]);
-                }
-    
-                // Masukkan pertanyaan ke array tanpa ID
-                $questionsArray[] = [
-                    'pertanyaan' => $soal['pertanyaan'],
-                    'jawaban' => $soal['jawaban'],
-                    'pilihan' => $soal['pilihan']
-                ];
-            }
-    
-            // Siapkan setiap kuis untuk dimasukkan ke response
-            $response[] = [
-                'id' => $questionChoice->id,
-                'title' => $questionChoice->title,
-                'questions' => $questionsArray
-            ];
         }
-    
-        return response()->json($response, 201);
+
+        // Masukkan pertanyaan ke array respons
+        $response[] = [
+            'pertanyaan' => $soal['pertanyaan'],
+            'jawaban' => $soal['jawaban'],
+            'pilihan' => $soal['pilihan']
+        ];
     }
+
+    // Kembalikan respons dalam bentuk array
+    return response()->json([
+        'id' => $questionChoice->id,
+        'title' => $questionChoice->title,
+        'soal' => $response
+    ], 201);
+}
+
+    
+    
     
 
     /**
