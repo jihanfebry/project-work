@@ -33,7 +33,24 @@ class MapelController extends Controller
      */
     public function store(Request $request)
     {
-        $data= DB::table('mapels')->insert([
+        // Cek apakah file gambar ada (tidak required)
+        if ($request->hasFile('image')) {
+            // Ambil file gambar
+            $image = $request->file('image');
+            // Menggunakan nama asli file gambar
+            $imageName = $image->getClientOriginalName();
+            // Simpan gambar ke folder public/image
+            $image->move(public_path('image'), $imageName);
+            // Buat path yang akan disimpan di database
+            $imagePath = 'image/'.$imageName;
+        } else {
+            // Jika tidak ada gambar, set path kosong atau sesuai kebutuhan
+            $imagePath = null;
+        }
+
+        // Simpan data ke database
+        $data = DB::table('mapels')->insert([
+            'image' => $imagePath, // Simpan path gambar atau null
             'material' => $request->material,
         ]);
 
@@ -41,14 +58,15 @@ class MapelController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $data
-            ]); 
-        }else{
+            ]);
+        } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Update data failed'
+                'message' => 'Data update failed'
             ], 403);
-        };
+        }
     }
+
 
     public function show(Mapel $mapel)
     {
