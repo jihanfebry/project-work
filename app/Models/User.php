@@ -48,4 +48,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function SiswaType()
+    {
+        return $this->belongsTo(Siswa::class);
+    }
+    public function GuruType()
+    {
+        return $this->belongsTo(Guru::class);
+    }
 }

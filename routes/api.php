@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EssayAnswerController;
+use App\Http\Controllers\QuestionEssayController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\GuruController;
@@ -12,6 +14,7 @@ use App\Http\Controllers\KelasController;
 use App\Http\Controllers\QuestionChoiceController;
 use App\Http\Controllers\TekaTekiController;
 use App\Http\Controllers\LoginAuthController;
+
 
 
 /*
@@ -25,9 +28,11 @@ use App\Http\Controllers\LoginAuthController;
 |
 */
 
+
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {    
-//     return $request->user();
-// });
+
+
+
 
     Route::post('/login', [LoginAuthController::class, 'login'])->name('login');
 
@@ -38,6 +43,8 @@ use App\Http\Controllers\LoginAuthController;
     Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
 
         Route::get('/users', [UserController::class, 'index']);
+        Route::post('users/check-existing', [UserController::class, 'checkExistingUsers']);
+
         Route::post('/users', [UserController::class, 'store']);
         Route::get('/users/{id}', [UserController::class, 'show']);
         Route::put('/users/{id}', [UserController::class, 'update']);
@@ -55,10 +62,8 @@ use App\Http\Controllers\LoginAuthController;
         Route::get('/teka-teki', [TekaTekiController::class, 'index']); // Untuk mendapatkan teka-teki
         Route::post('/teka-teki/cek', [TekaTekiController::class, 'cekJawaban']); // Untuk mengecek jawaban
     
-        Route::apiResource('/siswas', SiswaController::class);
-    
-    
         Route::apiResource('/siswa', SiswaController::class);
+        Route::get('/list-siswa', [SiswaController::class, 'listSiswa']);
     
         Route::apiResource('/guru', GuruController::class);
     
@@ -69,8 +74,3 @@ use App\Http\Controllers\LoginAuthController;
         Route::apiResource('/kelas', KelasController::class);
         Route::get('/listSiswaByKelas', [KelasController::class, 'listSiswaByKelas']);
     });
-    
-
-        
-  
-

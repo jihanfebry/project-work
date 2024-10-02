@@ -115,9 +115,13 @@ class QuestionChoiceController extends Controller
             'soal' => $response
         ], 201);
     }
+
+    // Kembalikan respons dalam bentuk array
+  
+
     
     
-    
+
 
     /**
      * Display the specified resource.

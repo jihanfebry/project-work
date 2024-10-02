@@ -13,4 +13,9 @@ class Guru extends Model
     protected $guarded = [
         'id'
     ];
+
+    public function UserType()
+    {
+        return $this->hasMany(User::class);
+    }
 }

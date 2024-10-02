@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('siswas', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('name');
             $table->string('birth_date')->nullable();
             $table->enum ('gender', ['laki-laki', 'perempuan'])->nullable();
@@ -22,7 +23,6 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('addres')->nullable();
             $table->unsignedBigInteger('kelas_id')->nullable();
-            $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('kelas_id')->references('id')->on('kelas');
             $table->timestamps();
         });
