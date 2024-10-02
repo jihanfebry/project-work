@@ -35,8 +35,6 @@ class MapelController extends Controller
     {
         $data= DB::table('mapels')->insert([
             'material' => $request->material,
-            'task' => $request->task,
-            'answer' => $request->answer,
         ]);
 
         if ($data) {
@@ -69,35 +67,31 @@ class MapelController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, Mapel $mapel)
-{
-    if (!$mapel) {
-        return response()->json(['message' => 'Mapel tidak ditemukan'], 404);
-    }
+    {
+        if (!$mapel) {
+            return response()->json(['message' => 'Mapel tidak ditemukan'], 404);
+        }
 
-    $request->validate([
-        'material' => 'required|min:5',
-        'task' => 'nullable',
-        'answer' => 'required|min:2'
-    ]);
-
-    $updateSuccess = $mapel->update([
-        'material' => $request->input('material'),
-        'task' => $request->input('task'),
-        'answer' => $request->input('answer')  
-    ]);
-
-    if ($updateSuccess) {
-        return response()->json([
-            'success' => true,
-            'data' => $mapel
+        $request->validate([
+            'material' => 'required|min:5'
         ]);
-    } else {
-        return response()->json([
-            'success' => false,
-            'message' => 'Update gagal'
-        ], 500);
+
+        $updateSuccess = $mapel->update([
+            'material' => $request->input('material')
+        ]);
+
+        if ($updateSuccess) {
+            return response()->json([
+                'success' => true,
+                'data' => $mapel
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update gagal'
+            ], 500);
+        }
     }
-}
 
 
     /**
