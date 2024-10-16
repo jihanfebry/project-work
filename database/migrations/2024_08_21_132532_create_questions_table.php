@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('question_options', function (Blueprint $table) {
+        Schema::create('questions', function (Blueprint $table) {
             $table->uuid('id')->primary(); // Menggunakan UUID sebagai primary key
-            $table->uuid('question_id'); // Menggunakan UUID untuk foreign key
-            $table->string('pilihan');
+            $table->uuid('question_choice_id'); // Menggunakan UUID untuk foreign key
+            $table->text('pertanyaan');  // Pertanyaan
+            $table->string('jawaban');
             $table->timestamps();
 
             // Menambahkan foreign key constraint
-            $table->foreign('question_id')->references('id')->on('questions')->onDelete('cascade');
+            $table->foreign('question_choice_id')->references('id')->on('question_choices')->onDelete('cascade');
         });
     }
 
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('question_options');
+        Schema::dropIfExists('questions');
     }
 };

@@ -14,52 +14,35 @@ class QuestionChoiceController extends Controller
      */
     public function index()
     {
-        // Ambil semua QuestionChoice beserta questions dan options-nya
         $questionChoices = QuestionChoice::with('questions.options')->get();
-    
-        // Siapkan array untuk response
+
         $response = [];
-    
-        // Loop melalui setiap QuestionChoice
+
         foreach ($questionChoices as $questionChoice) {
             $questionsArray = [];
-    
-            // Loop melalui setiap pertanyaan dari kuis
+
             foreach ($questionChoice->questions as $question) {
                 $options = [];
-    
-                // Ambil semua opsi dari pertanyaan tersebut
+
                 foreach ($question->options as $option) {
                     $options[] = $option->pilihan;
                 }
-    
-                // Masukkan pertanyaan ke array tanpa ID
+
                 $questionsArray[] = [
                     'pertanyaan' => $question->pertanyaan,
                     'jawaban' => $question->jawaban,
                     'pilihan' => $options
                 ];
             }
-    
-            // Siapkan setiap kuis untuk dimasukkan ke response
+
             $response[] = [
-                'id' => $questionChoice->id,
+                'id' => $questionChoice->id, // UUID
                 'title' => $questionChoice->title,
                 'questions' => $questionsArray
             ];
         }
-    
-        // Return response dalam bentuk JSON
-        return response()->json($response, 200);
-    }
-    
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return response()->json($response, 200);
     }
 
     /**
@@ -67,48 +50,42 @@ class QuestionChoiceController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi request seperti sebelumnya
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
             'soal' => 'required|array|min:1',
             'soal.*.pertanyaan' => 'required|string|max:255',
             'soal.*.jawaban' => 'required|string|max:255',
-            'soal.*.pilihan' => 'required|array|min:4', // Minimal 4 pilihan jawaban
+            'soal.*.pilihan' => 'required|array|min:4',
             'soal.*.pilihan.*' => 'required|string|max:255'
         ]);
-    
-        $response = []; // Array untuk menyimpan respons
-    
-        // Buat entri untuk QuestionChoice
+
+        $response = [];
+
         $questionChoice = QuestionChoice::create([
             'title' => $validatedData['title']
         ]);
-    
-        // Loop melalui soal
+
         foreach ($validatedData['soal'] as $soal) {
             $question = Question::create([
                 'question_choice_id' => $questionChoice->id,
                 'pertanyaan' => $soal['pertanyaan'],
                 'jawaban' => $soal['jawaban'],
             ]);
-    
-            // Simpan setiap pilihan jawaban
+
             foreach ($soal['pilihan'] as $pilihan) {
                 QuestionOption::create([
                     'question_id' => $question->id,
                     'pilihan' => $pilihan,
                 ]);
             }
-    
-            // Masukkan pertanyaan ke array respons
+
             $response[] = [
                 'pertanyaan' => $soal['pertanyaan'],
                 'jawaban' => $soal['jawaban'],
                 'pilihan' => $soal['pilihan']
             ];
         }
-    
-        // Kembalikan respons dalam bentuk array
+
         return response()->json([
             'id' => $questionChoice->id,
             'title' => $questionChoice->title,
@@ -116,27 +93,34 @@ class QuestionChoiceController extends Controller
         ], 201);
     }
 
-    // Kembalikan respons dalam bentuk array
-  
-
-    
-    
-
-
     /**
      * Display the specified resource.
      */
-    public function show(QuestionChoice $questionChoice)
+    public function show($id)
     {
-        //
-    }
+        $questionChoice = QuestionChoice::with('questions.options')->findOrFail($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(QuestionChoice $questionChoice)
-    {
-        //
+        $questionsArray = [];
+
+        foreach ($questionChoice->questions as $question) {
+            $options = [];
+
+            foreach ($question->options as $option) {
+                $options[] = $option->pilihan;
+            }
+
+            $questionsArray[] = [
+                'pertanyaan' => $question->pertanyaan,
+                'jawaban' => $question->jawaban,
+                'pilihan' => $options
+            ];
+        }
+
+        return response()->json([
+            'id' => $questionChoice->id,
+            'title' => $questionChoice->title,
+            'questions' => $questionsArray
+        ], 200);
     }
 
     /**
@@ -144,7 +128,40 @@ class QuestionChoiceController extends Controller
      */
     public function update(Request $request, QuestionChoice $questionChoice)
     {
-        //
+        $validatedData = $request->validate([
+            'pertanyaan' => 'required|string|max:255',
+            'jawaban' => 'required|string|max:255',
+            'pilihan' => 'required|array|min:4',
+            'pilihan.*' => 'required|string|max:255'
+        ]);
+
+        $question = Question::where('question_choice_id', $questionChoice->id)
+            ->where('pertanyaan', $validatedData['pertanyaan'])
+            ->first();
+
+        if (!$question) {
+            return response()->json(['error' => 'Question not found'], 404);
+        }
+
+        $question->update([
+            'jawaban' => $validatedData['jawaban']
+        ]);
+
+        QuestionOption::where('question_id', $question->id)->delete();
+
+        foreach ($validatedData['pilihan'] as $pilihan) {
+            QuestionOption::create([
+                'question_id' => $question->id,
+                'pilihan' => $pilihan
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Question updated successfully',
+            'pertanyaan' => $question->pertanyaan,
+            'jawaban' => $question->jawaban,
+            'pilihan' => $validatedData['pilihan']
+        ], 200);
     }
 
     /**
@@ -152,6 +169,13 @@ class QuestionChoiceController extends Controller
      */
     public function destroy(QuestionChoice $questionChoice)
     {
-        //
+        foreach ($questionChoice->questions as $question) {
+            QuestionOption::where('question_id', $question->id)->delete();
+            $question->delete();
+        }
+
+        $questionChoice->delete();
+
+        return response()->json(['message' => 'QuestionChoice deleted successfully'], 200);
     }
 }
