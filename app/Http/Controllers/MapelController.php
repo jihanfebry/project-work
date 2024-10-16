@@ -51,6 +51,7 @@ class MapelController extends Controller
         // Simpan data ke database
         $data = DB::table('mapels')->insert([
             'image' => $imagePath, // Simpan path gambar atau null
+            'subject' => $request->subject,
             'material' => $request->material,
         ]);
 
@@ -91,11 +92,13 @@ class MapelController extends Controller
         }
 
         $request->validate([
-            'material' => 'required|min:5'
+            'material' => 'required|min:5',
+            'subject' => 'required|min:5'
         ]);
 
         $updateSuccess = $mapel->update([
-            'material' => $request->input('material')
+            'material' => $request->input('material'),
+            'subject' => $request->input('subject')
         ]);
 
         if ($updateSuccess) {

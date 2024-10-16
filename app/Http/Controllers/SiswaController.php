@@ -73,18 +73,6 @@ class SiswaController extends Controller
                     'fail' => false
                 ], 400); // Gunakan 400 untuk kesalahan validasi
             }
-
-        // if ($inserted) {
-        //     $siswa = DB::table('siswas')->where('name', $request->name)->first();
-        //     return response()->json([
-        //         'success' => true,
-        //         'data' => $siswa
-        //     ]);
-        // } else {
-        //     return response()->json([
-        //         'success' => false
-        //     ], 400); // Gunakan 400 untuk kesalahan validasi
-        // }
     }
 
     /**
@@ -114,18 +102,7 @@ class SiswaController extends Controller
 
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
-        }
-
-        // $request->validate([
-        //     'name' => 'required|min:5',
-        //     'birth_date' => 'date|nullable',
-        //     'gender' => 'in:laki-laki,perempuan|nullable',
-        //     'class' => 'nullable|string',
-        //     'parent' => 'nullable|string',
-        //     'phone_number' => 'nullable|string',
-        //     'email' => 'email|unique:users,email,' . $id,
-        //     'addres' => 'nullable|string'  
-        // ]);
+        }    
 
         $updateSuccess = $user->update([
             'name' => $request->name,

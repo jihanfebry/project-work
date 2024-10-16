@@ -133,42 +133,25 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-
-
-
     public function update(Request $request, string $id)
     {
         $user = User::find($id);
-    
+
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
-    
-        $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'username' => 'sometimes|string|max:255',
-            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $id,
-            'password' => 'sometimes|string|min:8',
-            'role' => 'sometimes|string|in:admin,guru,siswa',
-        ]);
-        
-        // Mengupdate data pengguna
-        $updateData = [
-            'name' => $request->name,
-            'username' => $request->username,
-            'email' => $request->email,
-            'role' => $request->role,
-        ];
-    
+
+        $updateData = $request->only(['username', 'email', 'role']);
+
         if ($request->has('password')) {
             $updateData['password'] = Hash::make($request->password);
         }
-    
+
         User::where('id', $id)->update($updateData);
-    
+
         return response()->json(['success' => true, 'data' => User::find($id)]);
     }
-    
+
     /**
      * Remove the specified resource from storage.
      */
