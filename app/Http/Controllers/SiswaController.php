@@ -105,7 +105,6 @@ class SiswaController extends Controller
         }    
 
         $updateSuccess = $user->update([
-            'name' => $request->name,
             'birth_date' => $request->birth_date,
             'gender' => $request->gender,
             // 'class' => $request->class,
