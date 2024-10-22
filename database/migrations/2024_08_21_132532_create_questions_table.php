@@ -12,14 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('questions', function (Blueprint $table) {
-            $table->uuid('id')->primary(); // Menggunakan UUID sebagai primary key
-            $table->uuid('question_choice_id'); // Menggunakan UUID untuk foreign key
+            $table->id();
+            $table->unsignedBigInteger('question_choice_id');
             $table->text('pertanyaan');  // Pertanyaan
-            $table->string('jawaban');
+            $table->string('jawaban');  
             $table->timestamps();
-
-            // Menambahkan foreign key constraint
-            $table->foreign('question_choice_id')->references('id')->on('question_choices')->onDelete('cascade');
         });
     }
 
