@@ -2,17 +2,13 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-<<<<<<< HEAD
 use App\Http\Controllers\EssayAnswerController;
 use App\Http\Controllers\QuestionEssayController;
-
-=======
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MapelController;
 use App\Http\Controllers\QuestionChoiceController;
->>>>>>> 1d0e17f0e16fe5ecbb3716a55adc9a69907c7a8b
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +21,6 @@ use App\Http\Controllers\QuestionChoiceController;
 |
 */
 
-<<<<<<< HEAD
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -41,7 +36,6 @@ Route::prefix('question-essays')->group(function () {
 Route::post('/essay-answers', [EssayAnswerController::class, 'store']); 
 Route::put('/essay-answers/{id}', [EssayAnswerController::class, 'update']);
 Route::get('/essay-answers/question/{question_id}', [EssayAnswerController::class, 'showByQuestion']);
-=======
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
@@ -77,4 +71,3 @@ Route::group(['prefix' => 'v1'], function () {
     // // Routes for Mapel management
     // Route::apiResource('mapel', MapelController::class)->middleware('auth:sanctum');
 });
->>>>>>> 1d0e17f0e16fe5ecbb3716a55adc9a69907c7a8b
