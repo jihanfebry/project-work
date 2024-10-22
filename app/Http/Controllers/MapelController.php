@@ -90,26 +90,39 @@ class MapelController extends Controller
         if (!$mapel) {
             return response()->json(['message' => 'Mapel tidak ditemukan'], 404);
         }
-
+    
+        // Validasi data yang dibutuhkan
         $request->validate([
             'material' => 'required|min:5',
-            'subject' => 'required|min:5'
+            'subject' => 'required|min:5',
         ]);
-
+    
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = $image->getClientOriginalName();
+            $image->move(public_path('image'), $imageName);
+            $imagePath = 'image/' . $imageName;
+        } else {
+            // Jika tidak ada gambar baru, tetap gunakan gambar yang ada
+            $imagePath = $mapel->image;
+        }
+    
+        // Update data di database
         $updateSuccess = $mapel->update([
+            'image' => $imagePath, // Simpan path gambar yang baru atau tetap
             'material' => $request->input('material'),
-            'subject' => $request->input('subject')
+            'subject' => $request->input('subject'),
         ]);
-
+    
         if ($updateSuccess) {
             return response()->json([
                 'success' => true,
-                'data' => $mapel
+                'data' => $mapel,
             ]);
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Update gagal'
+                'message' => 'Update gagal',
             ], 500);
         }
     }
