@@ -10,25 +10,43 @@ use Carbon\Carbon;
 
 class PaymentReceiptsController extends Controller
 {
-    public function updateStatus(Request $request, $userId)
-    {
-    $user = $request->user();
-    if (!$user) {
-        return response()->json(['error' => 'Pengguna tidak terautentikasi'], 401);
-    }
-
+    public function updateStatus(Request $request, $paymentId)
+{
+    // Validasi input dari request
     $request->validate([
-        'status' => 'required|in:belum lunas,lunas',
+        'status' => 'required|in:belum dibayar,lunas', // Pastikan status yang valid
     ]);
 
-    $updatedRows = PaymentReceipts::where('user_id', $userId)
-                                   ->update(['status' => $request->status]);
-    if ($updatedRows === 0) {
-        return response()->json(['error' => 'Tidak ada catatan pembayaran yang ditemukan untuk user ini'], 404);
+    // Ambil pengguna yang terautentikasi
+    $user = $request->user();
+
+    // Cari entri pembayaran berdasarkan payment ID dan user_id
+    $payment = PaymentReceipts::where('id', $paymentId)->where('user_id', $user->id)->first();
+
+    // Cek apakah entri pembayaran ada
+    if (!$payment) {
+        return response()->json(['error' => 'Pembayaran tidak ditemukan atau tidak memiliki akses'], 404);
     }
 
-    return response()->json(['message' => 'Status pembayaran berhasil diperbarui']);
+    // Update status pembayaran
+    $payment->status = $request->status;
+
+    // Coba simpan dan tangkap kesalahan jika ada
+    try {
+        $payment->save();
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Terjadi kesalahan saat menyimpan: ' . $e->getMessage()], 500);
     }
+
+    return response()->json([
+        'message' => 'Status pembayaran berhasil diperbarui',
+        'payment_id' => $payment->id,
+        'status' => $payment->status,
+    ], 200);
+}
+
+
+
 
     public function index()
     {

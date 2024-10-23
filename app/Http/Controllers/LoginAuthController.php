@@ -36,7 +36,7 @@ class LoginAuthController extends Controller
                 'token' => $token,
                 'message' => 'Login successful',
             ]);
-        }
+        }   
 
         return response()->json([
             'success' => false,

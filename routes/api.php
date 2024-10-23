@@ -8,6 +8,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\PaymentReceiptsController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MapelController;
 use App\Http\Controllers\KehadiranController;
 use App\Http\Controllers\KelasController;
@@ -36,8 +37,6 @@ use App\Http\Controllers\LoginAuthController;
 
     Route::post('/login', [LoginAuthController::class, 'login'])->name('login');
 
-
-
     // Route::middleware('IsLogin')->post('/logout', [LoginAuthController::class, 'logout']);
 
     Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function () {
@@ -49,7 +48,13 @@ use App\Http\Controllers\LoginAuthController;
         Route::put('/users/{id}', [UserController::class, 'update']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
     
-        Route::post('/payment', [PaymentReceiptsController::class, 'notifyUsers']);
+        Route::post('/payment-receipts', [PaymentReceiptsController::class, 'notifyUsers']);
+        Route::get('/payment-receipts', [PaymentReceiptsController::class, 'index']);
+        Route::put('/payment-receipts/status/{id}', [PaymentReceiptsController::class, 'updateStatus']);
+
+        Route::post('/payment-receipts-upload', [PaymentController::class, 'uploadReceipt']);
+
+       
     
         Route::get('/question', [QuestionChoiceController::class, 'index']);
         Route::post('/question', [QuestionChoiceController::class, 'store']);
