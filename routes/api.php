@@ -50,6 +50,7 @@ use App\Http\Controllers\LoginAuthController;
     
         Route::post('/payment-receipts', [PaymentReceiptsController::class, 'notifyUsers']);
         Route::get('/payment-receipts', [PaymentReceiptsController::class, 'index']);
+        Route::get('/payment-receipts/{id}', [PaymentReceiptsController::class, 'show']);
         Route::put('/payment-receipts/status/{id}', [PaymentReceiptsController::class, 'updateStatus']);
 
         Route::post('/payment-receipts-upload', [PaymentController::class, 'uploadReceipt']);
