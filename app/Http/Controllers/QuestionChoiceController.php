@@ -124,34 +124,123 @@ class QuestionChoiceController extends Controller
 
 
     /**
-     * Display the specified resource.
-     */
-    public function show(QuestionChoice $questionChoice)
-    {
-        //
+ * Display the specified resource.
+ */
+        public function show($id)
+{
+    // Cari QuestionChoice berdasarkan id yang diberikan dan muat relationships
+    $questionChoice = QuestionChoice::with('questions.options')->findOrFail($id);
+
+    // Siapkan array untuk response
+    $questionsArray = [];
+
+    // Loop melalui setiap pertanyaan dari kuis
+    foreach ($questionChoice->questions as $question) {
+        $options = [];
+
+        // Ambil semua opsi dari pertanyaan tersebut
+        foreach ($question->options as $option) {
+            $options[] = $option->pilihan;
+        }
+
+        // Masukkan pertanyaan ke array tanpa ID
+        $questionsArray[] = [
+            'pertanyaan' => $question->pertanyaan,
+            'jawaban' => $question->jawaban,
+            'pilihan' => $options
+        ];
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(QuestionChoice $questionChoice)
-    {
-        //
+    // Return response dalam bentuk JSON
+    return response()->json([
+        'id' => $questionChoice->id,
+        'title' => $questionChoice->title,
+        'questions' => $questionsArray
+    ], 200);
+}
+
+
+        /**
+         * Show the form for editing the specified resource.
+         */
+        public function edit(QuestionChoice $questionChoice)
+        {
+            // Jika Anda menggunakan form untuk mengedit di frontend, return data dari QuestionChoice
+            return response()->json($questionChoice, 200);
+        }
+
+        /**
+         * Update the specified resource in storage.
+         */
+        /**
+ * Update the specified resource in storage.
+ */
+public function update(Request $request, $questionChoiceId, $questionId)
+{
+    // Validasi request untuk pertanyaan, jawaban, dan pilihan
+    $validatedData = $request->validate([
+        'pertanyaan' => 'required|string|max:255', // Pertanyaan yang di-update
+        'jawaban' => 'required|string|max:255',    // Jawaban yang di-update
+        'pilihan' => 'required|array|min:4',       // Pilihan baru yang akan di-update
+        'pilihan.*' => 'required|string|max:255'   // Setiap pilihan harus berupa string
+    ]);
+
+    // Cari pertanyaan berdasarkan `id` dan `question_choice_id`
+    $question = Question::where('id', $questionId)
+        ->where('question_choice_id', $questionChoiceId)
+        ->first();
+
+    if (!$question) {
+        // Jika pertanyaan tidak ditemukan, kembalikan response error
+        return response()->json(['error' => 'Question not found'], 404);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, QuestionChoice $questionChoice)
-    {
-        //
+    // Update pertanyaan dan jawaban yang ditemukan
+    $question->update([
+        'pertanyaan' => $validatedData['pertanyaan'],
+        'jawaban' => $validatedData['jawaban']
+    ]);
+
+    // Hapus pilihan lama dan tambahkan pilihan baru
+    QuestionOption::where('question_id', $question->id)->delete();
+
+    foreach ($validatedData['pilihan'] as $pilihan) {
+        QuestionOption::create([
+            'question_id' => $question->id,
+            'pilihan' => $pilihan
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(QuestionChoice $questionChoice)
-    {
-        //
+    // Kembalikan response sukses
+    return response()->json([
+        'message' => 'Question updated successfully',
+        'pertanyaan' => $question->pertanyaan,
+        'jawaban' => $question->jawaban,
+        'pilihan' => $validatedData['pilihan']
+    ], 200);
+}
+
+public function destroy($questionChoiceId, $questionId)
+{
+    // Cari pertanyaan berdasarkan `id` dan `question_choice_id`
+    $question = Question::where('id', $questionId)
+        ->where('question_choice_id', $questionChoiceId)
+        ->first();
+
+    if (!$question) {
+        // Jika pertanyaan tidak ditemukan, kembalikan response error
+        return response()->json(['error' => 'Question not found'], 404);
     }
+
+    // Hapus semua pilihan yang terkait dengan pertanyaan
+    QuestionOption::where('question_id', $question->id)->delete();
+    
+    // Hapus pertanyaan
+    $question->delete();
+
+    // Kembalikan response sukses
+    return response()->json(['message' => 'Question deleted successfully'], 200);
+}
+
+
 }

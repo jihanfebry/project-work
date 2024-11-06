@@ -4,20 +4,45 @@ namespace App\Http\Controllers;
 
 use App\Models\Payment;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
+
+    public function uploadReceipt(Request $request)
+    { 
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['error' => 'Pengguna tidak terautentikasi'], 401);
+        }
+
+        $request->validate([
+            'receipt_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($request->hasFile('receipt_image')) {
+            $imagePath = $request->file('receipt_image')->store('receipt_images', 'public');
+            
+            $paymentReceipt = Payment::create([
+                'user_id' => $user->id, 
+                'receipt_image' => $imagePath,
+                'status' => 'menunggu konfirmasi', // Pastikan kolom status ada di model
+            ]);
+
+            return response()->json([
+                'message' => 'Bukti pembayaran berhasil diunggah',
+                'image_path' => $imagePath,
+                'payment_receipt' => $paymentReceipt 
+            ], 201);
+        }
+        return response()->json(['error' => 'Tidak ada file yang diunggah'], 400);
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $data = DB::table('payments')->get();
-
-        return response()->json([
-            'data' => $data
-        ], 201);
+        //
     }
 
     /**
@@ -33,28 +58,13 @@ class PaymentController extends Controller
      */
     public function store(Request $request)
     {
-        $data= DB::table('payments')->insert([
-            'status' => $request->status,
-            'bulan' => $request->bulan,
-        ]);
-
-        if ($data) {
-            return response()->json([
-                'suscces' => true,
-                'data' => $data
-            ]); 
-        }else{
-            return response()->json([
-                'suscces' => false,
-                'message' => 'Update data failed'
-            ], 403);
-        };
+        //
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(payment $payment)
+    public function show(Payment $payment)
     {
         //
     }
@@ -62,7 +72,7 @@ class PaymentController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(payment $payment)
+    public function edit(Payment $payment)
     {
         //
     }
@@ -70,7 +80,7 @@ class PaymentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Payment $payment)
     {
         //
     }
@@ -78,7 +88,7 @@ class PaymentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(payment $payment)
+    public function destroy(Payment $payment)
     {
         //
     }

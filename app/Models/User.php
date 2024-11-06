@@ -35,7 +35,6 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-       
         'remember_token',
     ];
 
@@ -57,4 +56,6 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Guru::class);
     }
+
+    
 }

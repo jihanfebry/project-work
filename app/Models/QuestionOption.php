@@ -10,6 +10,7 @@ class QuestionOption extends Model
     use HasFactory;
 
     protected $fillable = ['question_id', 'pilihan'];
+    
 
     public function question()
     {

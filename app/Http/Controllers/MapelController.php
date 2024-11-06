@@ -33,24 +33,41 @@ class MapelController extends Controller
      */
     public function store(Request $request)
     {
-        $data= DB::table('mapels')->insert([
+        // Cek apakah file gambar ada (tidak required)
+        if ($request->hasFile('image')) {
+            // Ambil file gambar
+            $image = $request->file('image');
+            // Menggunakan nama asli file gambar
+            $imageName = $image->getClientOriginalName();
+            // Simpan gambar ke folder public/image
+            $image->move(public_path('image'), $imageName);
+            // Buat path yang akan disimpan di database
+            $imagePath = 'image/'.$imageName;
+        } else {
+            // Jika tidak ada gambar, set path kosong atau sesuai kebutuhan
+            $imagePath = null;
+        }
+
+        // Simpan data ke database
+        $data = DB::table('mapels')->insert([
+            'image' => $imagePath, // Simpan path gambar atau null
+            'subject' => $request->subject,
             'material' => $request->material,
-            'task' => $request->task,
-            'answer' => $request->answer,
         ]);
 
         if ($data) {
             return response()->json([
                 'success' => true,
                 'data' => $data
-            ]); 
-        }else{
+            ]);
+        } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Update data failed'
+                'message' => 'Data update failed'
             ], 403);
-        };
+        }
     }
+
 
     public function show(Mapel $mapel)
     {
@@ -69,35 +86,46 @@ class MapelController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, Mapel $mapel)
-{
-    if (!$mapel) {
-        return response()->json(['message' => 'Mapel tidak ditemukan'], 404);
-    }
-
-    $request->validate([
-        'material' => 'required|min:5',
-        'task' => 'nullable',
-        'answer' => 'required|min:2'
-    ]);
-
-    $updateSuccess = $mapel->update([
-        'material' => $request->input('material'),
-        'task' => $request->input('task'),
-        'answer' => $request->input('answer')  
-    ]);
-
-    if ($updateSuccess) {
-        return response()->json([
-            'success' => true,
-            'data' => $mapel
+    {
+        if (!$mapel) {
+            return response()->json(['message' => 'Mapel tidak ditemukan'], 404);
+        }
+    
+        // Validasi data yang dibutuhkan
+        $request->validate([
+            'material' => 'required|min:5',
+            'subject' => 'required|min:5',
         ]);
-    } else {
-        return response()->json([
-            'success' => false,
-            'message' => 'Update gagal'
-        ], 500);
+    
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = $image->getClientOriginalName();
+            $image->move(public_path('image'), $imageName);
+            $imagePath = 'image/' . $imageName;
+        } else {
+            // Jika tidak ada gambar baru, tetap gunakan gambar yang ada
+            $imagePath = $mapel->image;
+        }
+    
+        // Update data di database
+        $updateSuccess = $mapel->update([
+            'image' => $imagePath, // Simpan path gambar yang baru atau tetap
+            'material' => $request->input('material'),
+            'subject' => $request->input('subject'),
+        ]);
+    
+        if ($updateSuccess) {
+            return response()->json([
+                'success' => true,
+                'data' => $mapel,
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update gagal',
+            ], 500);
+        }
     }
-}
 
 
     /**

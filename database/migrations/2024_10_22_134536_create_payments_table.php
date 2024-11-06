@@ -13,8 +13,12 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->string('status');
-            $table->string('bulan');
+            $table->unsignedBigInteger('user_id');
+            $table->string('receipt_image');
+            $table->string('status')->default('menunggu konfirmasi'); // Kolom status
+            // Menambahkan foreign key constraint
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
             $table->timestamps();
         });
     }

@@ -59,25 +59,6 @@ class TekaTekiController extends Controller
     }
 
 
-
-   
-
-    // Memeriksa jawaban yang diberikan oleh pengguna
-    public function cekJawaban(Request $request)
-    {
-        $tekaTeki = TekaTeki::find($request->input('id'));
-
-        if (!$tekaTeki) {
-            return response()->json(['error' => 'Teka-teki tidak ditemukan'], 404);
-        }
-
-        $jawaban = strtolower($request->input('jawaban'));
-        if ($jawaban === strtolower($tekaTeki->jawaban)) {
-            return response()->json(['message' => 'Jawaban benar!']);
-        } else {
-            return response()->json(['message' => 'Jawaban salah!']);
-        }
-    }
     /**
      * Display the specified resource.
      */
