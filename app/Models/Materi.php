@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 
-class Mapel extends Model
+class Materi extends Model
 {
     use HasFactory;
 
@@ -14,8 +14,8 @@ class Mapel extends Model
         'id'
     ];
 
-    public function MateriType()
+    public function MapelType()
     {
-        return $this->hasMany(Materi::class);
+        return $this->belongsTo(Mapel::class);
     }
 }

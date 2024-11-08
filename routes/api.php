@@ -7,6 +7,7 @@ use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MapelController;
+use App\Http\Controllers\MateriController;
 use App\Http\Controllers\KehadiranController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\QuestionChoiceController;
@@ -61,6 +62,8 @@ use App\Http\Controllers\LoginAuthController;
         Route::apiResource('/guru', GuruController::class);
     
         Route::apiResource('/mapel', MapelController::class);
+
+        Route::apiResource('/materi', MateriController::class);
     
         Route::apiResource('/absensi', KehadiranController::class);
     

@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mapels', function (Blueprint $table) {
+        Schema::create('materis', function (Blueprint $table) {
             $table->id();
             $table->string('image')->nullable();
             $table->string('subject');
             $table->string('material');
+            $table->unsignedBigInteger('mapel_id');
+            $table->foreign('mapel_id')->references('id')->on('mapels');
             $table->timestamps();
         });
     }
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mapels');
+        Schema::dropIfExists('materis');
     }
 };
