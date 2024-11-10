@@ -16,8 +16,6 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->string('subject');
             $table->string('material');
-            $table->unsignedBigInteger('mapel_id');
-            $table->foreign('mapel_id')->references('id')->on('mapels');
             $table->timestamps();
         });
     }

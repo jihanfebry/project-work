@@ -14,8 +14,4 @@ class Mapel extends Model
         'id'
     ];
 
-    public function MateriType()
-    {
-        return $this->hasMany(Materi::class);
-    }
 }

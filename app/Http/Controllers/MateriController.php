@@ -37,7 +37,6 @@ class MateriController extends Controller
         $request->validate([
             'subject' => 'required|string|max:255',
             'material' => 'required|string',
-            'mapel_id' => 'required|exists:mapels,id', // Pastikan mapel_id valid
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Validasi gambar jika ada
         ]);
 
@@ -61,7 +60,6 @@ class MateriController extends Controller
             'image' => $imagePath, // Simpan path gambar atau null
             'subject' => $request->subject,
             'material' => $request->material,
-            'mapel_id' => $request->mapel_id, // Simpan mapel_id untuk menghubungkan materi dengan mata pelajaran
         ]);
 
         if ($data) {

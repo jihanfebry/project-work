@@ -14,8 +14,4 @@ class Materi extends Model
         'id'
     ];
 
-    public function MapelType()
-    {
-        return $this->belongsTo(Mapel::class);
-    }
 }
