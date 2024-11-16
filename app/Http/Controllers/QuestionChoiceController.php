@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\QuestionChoice;
+use App\Models\QuestionChoiceTitle;
 use App\Models\QuestionOption;
-use App\Models\Question;
+use App\Models\QuestionChoice;
 use Illuminate\Http\Request;
 
 class QuestionChoiceController extends Controller
@@ -15,7 +15,7 @@ class QuestionChoiceController extends Controller
     public function index()
     {
         // Ambil semua QuestionChoice beserta questions dan options-nya
-        $questionChoices = QuestionChoice::with('questions.options')->get();
+        $questionChoices = QuestionChoiceTitle::with('questions.options')->get();
     
         // Siapkan array untuk response
         $response = [];
@@ -80,13 +80,13 @@ class QuestionChoiceController extends Controller
         $response = []; // Array untuk menyimpan respons
     
         // Buat entri untuk QuestionChoice
-        $questionChoice = QuestionChoice::create([
+        $questionChoice = QuestionChoiceTitle::create([
             'title' => $validatedData['title']
         ]);
     
         // Loop melalui soal
         foreach ($validatedData['soal'] as $soal) {
-            $question = Question::create([
+            $question = QuestionChoice::create([
                 'question_choice_id' => $questionChoice->id,
                 'pertanyaan' => $soal['pertanyaan'],
                 'jawaban' => $soal['jawaban'],
@@ -129,7 +129,7 @@ class QuestionChoiceController extends Controller
         public function show($id)
 {
     // Cari QuestionChoice berdasarkan id yang diberikan dan muat relationships
-    $questionChoice = QuestionChoice::with('questions.options')->findOrFail($id);
+    $questionChoice = QuestionChoiceTitle::with('questions.options')->findOrFail($id);
 
     // Siapkan array untuk response
     $questionsArray = [];
@@ -163,7 +163,7 @@ class QuestionChoiceController extends Controller
         /**
          * Show the form for editing the specified resource.
          */
-        public function edit(QuestionChoice $questionChoice)
+        public function edit(QuestionChoiceTitle $questionChoice)
         {
             // Jika Anda menggunakan form untuk mengedit di frontend, return data dari QuestionChoice
             return response()->json($questionChoice, 200);
@@ -186,7 +186,7 @@ public function update(Request $request, $questionChoiceId, $questionId)
     ]);
 
     // Cari pertanyaan berdasarkan `id` dan `question_choice_id`
-    $question = Question::where('id', $questionId)
+    $question = QuestionChoice::where('id', $questionId)
         ->where('question_choice_id', $questionChoiceId)
         ->first();
 
@@ -223,7 +223,7 @@ public function update(Request $request, $questionChoiceId, $questionId)
 public function destroy($questionChoiceId, $questionId)
 {
     // Cari pertanyaan berdasarkan `id` dan `question_choice_id`
-    $question = Question::where('id', $questionId)
+    $question = QuestionChoice::where('id', $questionId)
         ->where('question_choice_id', $questionChoiceId)
         ->first();
 

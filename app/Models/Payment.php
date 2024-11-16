@@ -21,4 +21,8 @@ class Payment extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function receipt()
+    {
+        return $this->belongsTo(PaymentReceipts::class, 'user_id', 'user_id');
+    }
 }
