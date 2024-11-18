@@ -24,4 +24,7 @@ class PaymentReceipts extends Model
     {
         return $this->hasMany(Payment::class, 'user_id', 'user_id');
     }
+
+   
+    
 }
