@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('payment_receipts', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('payment_id')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->string('month'); 
             $table->enum('status', ['belum dibayar', 'belum lunas', 'lunas'])->default('belum dibayar');
