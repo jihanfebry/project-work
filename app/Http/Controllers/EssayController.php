@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\QuestionOption;
+use App\Models\Essay;
 use Illuminate\Http\Request;
 
-class QuestionOptionController extends Controller
+class EssayController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class QuestionOptionController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(QuestionOption $questionOption)
+    public function show(Essay $essay)
     {
         //
     }
@@ -42,7 +42,7 @@ class QuestionOptionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(QuestionOption $questionOption)
+    public function edit(Essay $essay)
     {
         //
     }
@@ -50,7 +50,7 @@ class QuestionOptionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, QuestionOption $questionOption)
+    public function update(Request $request, Essay $essay)
     {
         //
     }
@@ -58,7 +58,7 @@ class QuestionOptionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(QuestionOption $questionOption)
+    public function destroy(Essay $essay)
     {
         //
     }

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\mapel;
+use App\Models\Mapel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class MapelController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a l  isting of the resource.
      */
     public function index()
     {
@@ -17,7 +17,7 @@ class MapelController extends Controller
 
         return response()->json([
             'data' => $data
-        ], 201);
+        ]);
     }
 
     /**
@@ -33,28 +33,43 @@ class MapelController extends Controller
      */
     public function store(Request $request)
     {
-        $data= DB::table('mapels')->insert([
+        // Cek apakah file gambar ada (tidak required)
+        if ($request->hasFile('image')) {
+            // Ambil file gambar
+            $image = $request->file('image');
+            // Menggunakan nama asli file gambar
+            $imageName = $image->getClientOriginalName();
+            // Simpan gambar ke folder public/image
+            $image->move(public_path('image'), $imageName);
+            // Buat path yang akan disimpan di database
+            $imagePath = 'image/'.$imageName;
+        } else {
+            // Jika tidak ada gambar, set path kosong atau sesuai kebutuhan
+            $imagePath = null;
+        }
+
+        // Simpan data ke database
+        $data = DB::table('mapels')->insert([
+            'image' => $imagePath, // Simpan path gambar atau null
+            'subject' => $request->subject,
             'material' => $request->material,
-            'task' => $request->task,
-            'answer' => $request->answer
         ]);
 
         if ($data) {
             return response()->json([
-                'suscces' => true,
+                'success' => true,
                 'data' => $data
-            ]); 
-        }else{
+            ]);
+        } else {
             return response()->json([
-                'suscces' => false
+                'success' => false,
+                'message' => 'Data update failed'
             ], 403);
-        };
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(mapel $mapel)
+
+    public function show(Mapel $mapel)
     {
         //
     }
@@ -62,7 +77,7 @@ class MapelController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(mapel $mapel)
+    public function edit(Mapel $mapel)
     {
         //
     }
@@ -70,10 +85,48 @@ class MapelController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, mapel $mapel)
+    public function update(Request $request, Mapel $mapel)
     {
-        //
+        if (!$mapel) {
+            return response()->json(['message' => 'Mapel tidak ditemukan'], 404);
+        }
+    
+        // Validasi data yang dibutuhkan
+        $request->validate([
+            'material' => 'required|min:5',
+            'subject' => 'required|min:5',
+        ]);
+    
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = $image->getClientOriginalName();
+            $image->move(public_path('image'), $imageName);
+            $imagePath = 'image/' . $imageName;
+        } else {
+            // Jika tidak ada gambar baru, tetap gunakan gambar yang ada
+            $imagePath = $mapel->image;
+        }
+    
+        // Update data di database
+        $updateSuccess = $mapel->update([
+            'image' => $imagePath, // Simpan path gambar yang baru atau tetap
+            'material' => $request->input('material'),
+            'subject' => $request->input('subject'),
+        ]);
+    
+        if ($updateSuccess) {
+            return response()->json([
+                'success' => true,
+                'data' => $mapel,
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Update gagal',
+            ], 500);
+        }
     }
+
 
     /**
      * Remove the specified resource from storage.

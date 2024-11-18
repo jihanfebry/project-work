@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('payment_receipts', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id'); 
-            $table->string('receipt_image'); 
+            $table->unsignedBigInteger('user_id');
+            $table->string('month'); 
             $table->enum('status', ['belum dibayar', 'belum lunas', 'lunas'])->default('belum dibayar');
             $table->timestamps();
 
@@ -24,4 +24,3 @@ return new class extends Migration
         Schema::dropIfExists('payment_receipts');
     }
 };
-

@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('question_choice_answers', function (Blueprint $table) {
+        Schema::create('kehadirans', function (Blueprint $table) {
             $table->id();
+            $table->enum('absen', ['Hadir', 'Izin', 'Sakit', 'Alpa'])->default('Hadir');
+            $table->unsignedBigInteger('Siswa_id');
+            $table->foreign('Siswa_id')->references('id')->on('siswas');
             $table->timestamps();
         });
     }
@@ -22,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('question_choice_answers');
+        Schema::dropIfExists('kehadirans');
     }
 };
