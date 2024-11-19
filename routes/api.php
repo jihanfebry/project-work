@@ -48,14 +48,16 @@ use App\Http\Controllers\LoginAuthController;
         Route::patch('/users/{id}', [UserController::class, 'update']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
     
+
+        // payment
         Route::post('/payment-receipts', [PaymentReceiptsController::class, 'notifyUsers']);
         Route::get('/payment-receipts', [PaymentReceiptsController::class, 'index']);
+        Route::get('/payment-receipts/{id}', [PaymentReceiptsController::class, 'show']);
         Route::put('/payment-receipts/status/{id}', [PaymentReceiptsController::class, 'updateStatus']);
-
         Route::post('/payment-receipts-upload', [PaymentController::class, 'uploadReceipt']);
 
        
-    
+    // question
         Route::get('/question', [QuestionChoiceController::class, 'index']);
         Route::post('/question', [QuestionChoiceController::class, 'store']);
         Route::get('/question/{id}', [QuestionChoiceController::class, 'show']);

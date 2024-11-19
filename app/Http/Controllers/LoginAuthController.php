@@ -30,6 +30,7 @@ class LoginAuthController extends Controller
 
             return response()->json([
                 'success' => true,
+                'id' => $user->id,
                 'name' => $user->name,
                 'username' => $user->username,
                 'role' => $user->role,

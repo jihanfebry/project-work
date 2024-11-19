@@ -33,40 +33,34 @@ class MapelController extends Controller
      */
     public function store(Request $request)
     {
-        // Cek apakah file gambar ada (tidak required)
+        // Validasi data yang dibutuhkan
+        $request->validate([
+            'subject' => 'required|min:5',
+            'material' => 'required|min:5',
+            'image' => 'nullable|image|max:2048', // Validasi gambar
+        ]);
+    
+        // Cek apakah file gambar ada
         if ($request->hasFile('image')) {
-            // Ambil file gambar
-            $image = $request->file('image');
-            // Menggunakan nama asli file gambar
-            $imageName = $image->getClientOriginalName();
-            // Simpan gambar ke folder public/image
-            $image->move(public_path('image'), $imageName);
-            // Buat path yang akan disimpan di database
-            $imagePath = 'image/'.$imageName;
+            // Menggunakan Laravel's store() method untuk menyimpan gambar
+            $imagePath = $request->file('image')->store('images', 'public');
         } else {
-            // Jika tidak ada gambar, set path kosong atau sesuai kebutuhan
             $imagePath = null;
         }
-
-        // Simpan data ke database
-        $data = DB::table('mapels')->insert([
-            'image' => $imagePath, // Simpan path gambar atau null
-            'subject' => $request->subject,
-            'material' => $request->material,
+    
+        // Simpan data ke database menggunakan Model Eloquent
+        $mapel = new Mapel();
+        $mapel->subject = $request->subject;
+        $mapel->material = $request->material;
+        $mapel->image = $imagePath;
+        $mapel->save();
+    
+        return response()->json([
+            'success' => true,
+            'data' => $mapel
         ]);
-
-        if ($data) {
-            return response()->json([
-                'success' => true,
-                'data' => $data
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Data update failed'
-            ], 403);
-        }
     }
+    
 
 
     public function show(Mapel $mapel)
