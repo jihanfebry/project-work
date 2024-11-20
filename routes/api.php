@@ -52,6 +52,7 @@ use App\Http\Controllers\QuestionEssayController;
         Route::post('/payments/upload', [PaymentController::class, 'uploadReceipt']);
         Route::put('/payments/validate/{id}', [PaymentController::class, 'validatePayment']);
         Route::get('/payments', [PaymentController::class, 'index']);
+        Route::get('/payments-image', [PaymentController::class, 'getUserWithImage']);
         Route::get('/payments/{id}', [PaymentController::class, 'show']);
 
 

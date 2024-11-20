@@ -38,6 +38,39 @@ class PaymentController extends Controller
         ], 200);
     }
     
+
+    public function getUserWithImage()
+{
+    // Ambil semua pengguna dengan pembayaran yang memiliki status 'menunggu konfirmasi' atau 'lunas'
+    $users = User::with(['payments' => function ($query) {
+        $query->whereIn('status', ['menunggu konfirmasi', 'lunas'])
+              ->whereNotNull('receipt_image'); // Pastikan bukti gambar telah diunggah
+    }])->whereHas('payments', function ($query) {
+        $query->whereIn('status', ['menunggu konfirmasi', 'lunas'])
+              ->whereNotNull('receipt_image'); // Filter berdasarkan status dan gambar
+    })->get();
+
+    // Format hasil
+    $result = $users->map(function ($user) {
+        // Pembayaran terakhir sesuai filter
+        $lastPayment = $user->payments->last();
+
+        return [
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'role' => $user->role,
+            'status' => $lastPayment->status ?? 'belum ada status',
+            'spp_bulan' => $lastPayment ? \Carbon\Carbon::parse($lastPayment->month)->translatedFormat('F') : 'Belum ada pembayaran',
+            'proof_image' => $lastPayment->receipt_image ?? null, // URL atau path gambar bukti
+        ];
+    });
+
+    return response()->json([
+        'message' => 'Daftar pengguna dengan pembayaran menunggu konfirmasi atau lunas',
+        'data' => $result,
+    ], 200);
+}
+
     // Fungsi untuk mengirim notifikasi ke semua siswa
     public function notifyUsers()
     {
@@ -140,14 +173,16 @@ public function show($id)
 
 
     // Fungsi untuk admin memvalidasi bukti pembayaran
-    public function validatePayment(Request $request, $id)
+    public function validatePayment(Request $request, $userId)
 {
     $request->validate([
         'status' => 'required|in:lunas,belum dibayar',
     ]);
 
-    $payment = Payment::findOrFail($id);
+    // Temukan pembayaran berdasarkan user_id
+    $payment = Payment::where('user_id', $userId)->firstOrFail();
 
+    // Update status pembayaran
     $payment->update([
         'status' => $request->status,
     ]);
@@ -157,5 +192,6 @@ public function show($id)
         'payment' => $payment,
     ]);
 }
+
 
 }
