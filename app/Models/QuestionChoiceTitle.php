@@ -5,15 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class QuestionOption extends Model
+class QuestionChoiceTitle extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['question_id', 'pilihan'];
+    protected $fillable = ['title'];
 
     // Relasi ke question_choices
-    public function question()
+    public function questions()
     {
-        return $this->belongsTo(QuestionChoice::class, 'question_id');
+        return $this->hasMany(QuestionChoice::class, 'question_choice_id');
     }
 }

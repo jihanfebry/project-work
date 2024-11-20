@@ -11,16 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('question_options', function (Blueprint $table) {
+        Schema::create('question_choice_titles', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('question_id');
-            $table->string('pilihan');
+            $table->string('title');
             $table->timestamps();
-        
-            // Foreign key untuk relasi ke question_choices
-            $table->foreign('question_id')->references('id')->on('question_choices')->onDelete('cascade');
         });
-        
     }
 
     /**
@@ -28,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('question_options');
+        Schema::dropIfExists('question_choice_titles');
     }
 };
