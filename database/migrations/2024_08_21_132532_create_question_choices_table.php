@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('jawaban');  
             $table->timestamps();
         
+
             // Foreign key untuk relasi ke question_choice_titles
             $table->foreign('question_choice_id')->references('id')->on('question_choice_titles')->onDelete('cascade');
         });

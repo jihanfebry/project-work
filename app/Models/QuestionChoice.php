@@ -11,7 +11,9 @@ class QuestionChoice extends Model
 
     protected $fillable = ['question_choice_id', 'pertanyaan', 'jawaban'];
 
+
     // Relasi ke question_choice_titles
+
     public function title()
     {
         return $this->belongsTo(QuestionChoiceTitle::class, 'question_choice_id');

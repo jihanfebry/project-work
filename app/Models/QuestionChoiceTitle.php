@@ -12,6 +12,8 @@ class QuestionChoiceTitle extends Model
     protected $fillable = ['title'];
 
     // Relasi ke question_choices
+   
+
     public function questions()
     {
         return $this->hasMany(QuestionChoice::class, 'question_choice_id');
