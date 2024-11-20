@@ -13,52 +13,59 @@ class PaymentController extends Controller
 {
 
     public function index()
-{
-    $users = User::with('payments')->get();
-
-    $result = $users->map(function ($user) {
-        return [
-            'user_id' => $user->id,
-            'name' => $user->name,
-            'role' => $user->role,
-            'status' => $user->payments->last()->status ?? 'belum dibayar', 
-        ];
-    });
-
-    return response()->json([
-        'message' => 'Daftar pengguna dengan status pembayaran',
-        'data' => $result,
-    ], 200);
-}
-
+    {
+        // Ambil pengguna yang bukan admin atau guru
+        $users = User::with('payments')
+            ->whereNotIn('role', ['admin', 'guru'])
+            ->get();
+    
+        $result = $users->map(function ($user) {
+            // Pembayaran terakhir
+            $lastPayment = $user->payments->last();
+            
+            return [
+                'user_id' => $user->id,
+                'name' => $user->name,
+                'role' => $user->role,
+                'status' => $lastPayment->status ?? 'belum dibayar',
+                'spp_bulan' => $lastPayment ? \Carbon\Carbon::parse($lastPayment->month)->translatedFormat('F') : 'Belum ada pembayaran',
+            ];
+        });
+    
+        return response()->json([
+            'message' => 'Daftar pengguna dengan status pembayaran',
+            'data' => $result,
+        ], 200);
+    }
+    
     // Fungsi untuk mengirim notifikasi ke semua siswa
     public function notifyUsers()
-{
-    $students = User::where('role', 'siswa')->get();
-    $currentMonth = Carbon::now()->translatedFormat('F Y');
-    $notifications = [];
+    {
+        $students = User::where('role', 'siswa')->get();
+        $currentMonth = Carbon::now()->translatedFormat('F Y');
+        $notifications = [];
 
-    foreach ($students as $student) {
-        // Buat atau ambil data pembayaran
-        $payment = Payment::firstOrCreate(
-            ['user_id' => $student->id, 'month' => $currentMonth],
-            ['status' => 'belum dibayar']
-        );
+        foreach ($students as $student) {
+            // Buat atau ambil data pembayaran
+            $payment = Payment::firstOrCreate(
+                ['user_id' => $student->id, 'month' => $currentMonth],
+                ['status' => 'belum dibayar']
+            );
 
-        $notifications[] = [
-            'user_id' => $student->id,
-            'name' => $student->name,
-            'payment_id' => $payment->id,
-            'status' => $payment->status,
-            'notification' => "Notifikasi pembayaran untuk bulan $currentMonth telah dikirim.",
-        ];
+            $notifications[] = [
+                'user_id' => $student->id,
+                'name' => $student->name,
+                'payment_id' => $payment->id,
+                'status' => $payment->status,
+                'notification' => "Notifikasi pembayaran untuk bulan $currentMonth telah dikirim.",
+            ];
+        }
+
+        return response()->json([
+            'message' => 'Notifikasi dikirim ke semua siswa.',
+            'notifications' => $notifications,
+        ], 200);
     }
-
-    return response()->json([
-        'message' => 'Notifikasi dikirim ke semua siswa.',
-        'notifications' => $notifications,
-    ], 200);
-}
 
 
     // Fungsi untuk upload bukti pembayaran
@@ -97,6 +104,38 @@ class PaymentController extends Controller
     }
 
     return response()->json(['error' => 'Tidak ada file yang diunggah.'], 400);
+}
+
+public function show($id)
+{
+    // Cari pengguna berdasarkan ID dan relasi payments
+    $user = User::with('payments')
+        ->whereNotIn('role', ['admin', 'guru']) // Tidak termasuk admin atau guru
+        ->find($id);
+
+    // Jika pengguna tidak ditemukan
+    if (!$user) {
+        return response()->json([
+            'message' => 'User not found or does not have payment records',
+        ], 404);
+    }
+
+    // Pembayaran terakhir
+    $lastPayment = $user->payments->last();
+
+    // Menentukan bulan pembayaran
+    $sppBulan = $lastPayment ? \Carbon\Carbon::parse($lastPayment->month)->translatedFormat('F') : 'Belum ada pembayaran';
+
+    return response()->json([
+        'message' => 'Detail pengguna dengan status pembayaran',
+        'data' => [
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'role' => $user->role,
+            'status' => $lastPayment->status ?? 'belum dibayar',
+            'spp_bulan' => $sppBulan
+        ],
+    ], 200);
 }
 
 

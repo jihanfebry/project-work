@@ -119,10 +119,6 @@ class QuestionChoiceController extends Controller
     // Kembalikan respons dalam bentuk array
   
 
-    
-    
-
-
     /**
  * Display the specified resource.
  */
@@ -241,6 +237,33 @@ public function destroy($questionChoiceId, $questionId)
     // Kembalikan response sukses
     return response()->json(['message' => 'Question deleted successfully'], 200);
 }
+
+public function deleteAll($questionChoiceId)
+{
+    // Gunakan $questionChoiceId alih-alih $id
+    $questionChoice = QuestionChoiceTitle::find($questionChoiceId);
+
+    if (!$questionChoice) {
+        return response()->json([
+            'message' => 'QuestionChoiceTitle not found'
+        ], 404);
+    }
+
+    // Operasikan dengan $questionChoiceId
+    $questionChoices = QuestionChoice::where('question_choice_id', $questionChoiceId)->get();
+
+    foreach ($questionChoices as $question) {
+        QuestionOption::where('question_id', $question->id)->delete();
+        $question->delete();
+    }
+
+    $questionChoice->delete();
+
+    return response()->json([
+        'message' => 'QuestionChoiceTitle and related data deleted successfully'
+    ], 200);
+}
+
 
 
 }

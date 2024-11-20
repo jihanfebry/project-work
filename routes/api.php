@@ -47,16 +47,12 @@ use App\Http\Controllers\QuestionEssayController;
         Route::put('/users/{id}', [UserController::class, 'update']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
     
-        // Route::post('/payment-receipts', [PaymentReceiptsController::class, 'notifyUsers']);
-        // Route::get('/payment-receipts', [PaymentReceiptsController::class, 'index']);
-        // Route::get('/payment-receipts/{id}', [PaymentReceiptsController::class, 'show']);
-        // Route::put('/payment-receipts/status/{id}', [PaymentReceiptsController::class, 'updateStatus']);
-        // Route::post('/payment-receipts-upload', [PaymentController::class, 'uploadReceipt']);
 
         Route::post('/payments/notify', [PaymentController::class, 'notifyUsers']);
         Route::post('/payments/upload', [PaymentController::class, 'uploadReceipt']);
         Route::put('/payments/validate/{id}', [PaymentController::class, 'validatePayment']);
         Route::get('/payments', [PaymentController::class, 'index']);
+        Route::get('/payments/{id}', [PaymentController::class, 'show']);
 
 
         Route::get('/essay-questions', [QuestionEssayController::class, 'index']); // Menampilkan semua soal essay
@@ -70,6 +66,7 @@ use App\Http\Controllers\QuestionEssayController;
         Route::get('/question-choice/{id}', [QuestionChoiceController::class, 'show']);
         Route::put('question-choice/{questionChoice}/questions/{question}', [QuestionChoiceController::class, 'update']);
         Route::delete('question-choice/{questionChoice}/questions/{question}', [QuestionChoiceController::class, 'destroy']);
+        Route::delete('question-choice/{qestionChoiceTitleID}', [QuestionChoiceController::class, 'deleteAll']);
     
         Route::post('/teka-teki', [TekaTekiController::class, 'store']); // Untuk menambah teka-teki baru oleh admin
         Route::get('/teka-teki', [TekaTekiController::class, 'index']); // Untuk mendapatkan teka-teki
