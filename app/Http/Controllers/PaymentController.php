@@ -179,25 +179,26 @@ public function show($id)
 
 
     // Fungsi untuk admin memvalidasi bukti pembayaran
-    public function validatePayment(Request $request, $userId)
-{
-    $request->validate([
-        'status' => 'required|in:lunas,belum dibayar',
-    ]);
-
-    // Temukan pembayaran berdasarkan user_id
-    $payment = Payment::where('user_id', $userId)->firstOrFail();
-
-    // Update status pembayaran
-    $payment->update([
-        'status' => $request->status,
-    ]);
-
-    return response()->json([
-        'message' => 'Status pembayaran berhasil diperbarui.',
-        'payment' => $payment,
-    ]);
-}
+  // Fungsi untuk admin memvalidasi bukti pembayaran
+  public function validatePayment(Request $request, $userId)
+  {
+      $request->validate([
+          'status' => 'required|in:lunas,belum dibayar',
+      ]);
+  
+      // Temukan pembayaran berdasarkan user_id
+      $payment = Payment::where('user_id', $userId)->firstOrFail();
+  
+      // Update status pembayaran
+      $payment->update([
+          'status' => $request->status,
+      ]);
+  
+      return response()->json([
+          'message' => 'Status pembayaran berhasil diperbarui.',
+          'payment' => $payment
+        ]);
+  }
 
 
 }
