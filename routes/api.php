@@ -46,12 +46,13 @@ use App\Http\Controllers\QuestionEssayController;
         Route::get('/users/{id}', [UserController::class, 'show']);
         Route::patch('/users/{id}', [UserController::class, 'update']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
-    
+        Route::post('/v1/users/check-existing', [UserController::class, 'checkExistingUsers']);
 
         Route::post('/payments/notify', [PaymentController::class, 'notifyUsers']);
         Route::post('/payments/upload', [PaymentController::class, 'uploadReceipt']);
         Route::put('/payments/validate/{id}', [PaymentController::class, 'validatePayment']);
         Route::get('/payments', [PaymentController::class, 'index']);
+        Route::get('/payments-image', [PaymentController::class, 'getUserWithImage']);
         Route::get('/payments/{id}', [PaymentController::class, 'show']);
 
 

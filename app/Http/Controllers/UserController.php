@@ -35,7 +35,20 @@ class UserController extends Controller
      * Store a newly created resource in storage.
      */
     
-
+     public function checkExistingUsers(Request $request)
+     {
+         $request->validate([
+             'emails' => 'required|array',
+             'emails.*' => 'required|email',
+         ]);
+     
+         $existingEmails = User::whereIn('email', $request->emails)->pluck('email');
+     
+         return response()->json([
+             'existingEmails' => $existingEmails,
+         ]);
+     }
+     
 
     public function store(Request $request)
     {
