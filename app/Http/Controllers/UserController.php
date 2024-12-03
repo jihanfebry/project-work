@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\User;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -15,6 +15,7 @@ class UserController extends Controller
      */
     public function index()
     {
+        // Mengambil semua data user menggunakan model
         $users = User::all();
 
         return response()->json([
@@ -23,66 +24,89 @@ class UserController extends Controller
     }
 
     /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        // Method tidak diperlukan jika menggunakan API
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
+    
+
+
     public function store(Request $request)
     {
         \Log::info('Request Data:', $request->all());
-    
-        // Cek apakah data array atau tunggal
+
+        // Periksa apakah data yang dikirim adalah array dari pengguna
         $isArray = isset($request->users);
-    
+
         if ($isArray) {
             // Validasi array data pengguna
-            $request->validate([
-                'users' => 'required|array',
-                'users.*.name' => 'sometimes|string|max:255',
+            $data = $request->validate([
+                'users.*.name' => 'required|string|max:255',
                 'users.*.username' => 'required|min:3',
                 'users.*.email' => 'required|email|unique:users,email',
                 'users.*.role' => 'required|in:admin,guru,siswa',
             ]);
-            $users = $request->users;
+
+            $users = $data['users'];
         } else {
             // Validasi data tunggal
-            $request->validate([
-                'name' => 'sometimes|string|max:255',
+            $data = $request->validate([
+                'name' => 'required|string|max:255',
                 'username' => 'required|min:3',
                 'email' => 'required|email|unique:users,email',
                 'role' => 'required|in:admin,guru,siswa',
             ]);
-            $users = [$request->all()];
+
+            $users = [$data];
         }
-    
-        // Menyimpan pengguna yang berhasil diinput
+
         $insertedUsers = [];
-        // Menyimpan pengguna yang gagal diinput
         $errors = [];
-    
-        // Proses penyimpanan data pengguna
-        foreach ($users as $userData) {
-            $password = substr($userData['email'], 0, 3) . substr($userData['username'], 0, 3);
-    
+
+        foreach ($users as $user) {
+            $password = substr($user['email'], 0, 3) . substr($user['username'], 0, 3);
+
             try {
-                // Membuat objek User baru
-                $user = new User();
-                $user->name = $userData['name'] ?? null;
-                $user->username = $userData['username'];
-                $user->email = $userData['email'];
-                $user->password = Hash::make($password);
-                $user->role = $userData['role'];
-    
-                // Simpan user ke database
-                if ($user->save()) {
-                    $insertedUsers[] = $user;
+                $inserted = DB::table('users')->insertGetId([
+                    'name' => $user['name'],
+                    'username' => $user['username'],
+                    'email' => $user['email'],
+                    'password' => Hash::make($password),
+                    'role' => $user['role'],
+                ]);
+                
+                if ($inserted) {
+                    if ($user['role'] === 'siswa') {
+                        // Jika role adalah siswa, insert ke tabel siswas
+                        $inserted_siswa = DB::table('siswas')->insert([
+                            'name' => $user['name'],
+                            'user_id' => $inserted
+                        ]);
+                    } elseif ($user['role'] === 'guru') {
+                        // Jika role adalah guru, insert ke tabel gurus
+                        $inserted_guru = DB::table('gurus')->insert([
+                            'name' => $user['name'],
+                            'user_id' => $inserted
+                        ]);
+                    }
+                
+                    // Tambahkan user yang baru saja dimasukkan ke dalam array $insertedUsers
+                    $insertedUsers[] = DB::table('users')->where('email', $user['email'])->first();
                 } else {
-                    $errors[] = ['email' => $userData['email'], 'error' => 'Failed to insert user'];
+                    // Jika gagal insert ke tabel 'users', masukkan error ke dalam array $errors
+                    $errors[] = ['email' => $user['email'], 'error' => 'Failed to insert user'];
                 }
             } catch (\Exception $e) {
-                $errors[] = ['email' => $userData['email'], 'error' => $e->getMessage()];
+                $errors[] = ['email' => $user['email'], 'error' => $e->getMessage()];
             }
         }
-    
-        // Kembalikan response berdasarkan hasil
+
         if (empty($errors)) {
             return response()->json([
                 'success' => true,
@@ -95,23 +119,6 @@ class UserController extends Controller
             ], 400);
         }
     }
-    
-
-    public function checkExistingUsers(Request $request)
-{
-    $emails = $request->emails;
-
-    // Ambil email yang sudah ada di database
-    $existingEmails = User::whereIn('email', $emails)->pluck('email')->toArray();
-
-    return response()->json([
-        'existingEmails' => $existingEmails
-    ]);
-}
-
-
-    
-
     /**
      * Display the specified resource.
      */
@@ -126,9 +133,6 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $user = User::find($id);
@@ -137,20 +141,7 @@ class UserController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'username' => 'sometimes|string|max:255',
-            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $id,
-            'password' => 'sometimes|string|min:8',
-            'role' => 'sometimes|string|in:admin,guru,siswa',
-        ]);
-
-        $updateData = [
-            'name' => $request->name,
-            'username' => $request->username,
-            'email' => $request->email,
-            'role' => $request->role,
-        ];
+        $updateData = $request->only(['username', 'email', 'role']);
 
         if ($request->has('password')) {
             $updateData['password'] = Hash::make($request->password);
@@ -171,8 +162,12 @@ class UserController extends Controller
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
-
         $user->delete();
         return response()->json(['message' => 'User deleted successfully']);
     }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    
 }

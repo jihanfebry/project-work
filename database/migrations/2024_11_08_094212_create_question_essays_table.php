@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('gurus', function (Blueprint $table) {
+        Schema::create('question_essays', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('no_handphone')->nullable();
-            $table->string('email')->nullable();
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreignId('essay_title_id')->constrained()->onDelete('cascade');
+            $table->text('pertanyaan');
+            $table->text('jawaban');
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('gurus');
+        Schema::dropIfExists('question_essays');
     }
 };

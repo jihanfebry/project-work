@@ -35,7 +35,6 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
         'remember_token',
     ];
 
@@ -57,4 +56,12 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Guru::class);
     }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+   
+
+    
 }

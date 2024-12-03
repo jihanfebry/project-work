@@ -9,17 +9,10 @@ class QuestionEssay extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'question_image'
-    ];
+    protected $fillable = ['essay_id', 'pertanyaan', 'jawaban'];
 
-    protected $casts = [
-        'question_image' => 'array',
-    ];
-
-    // Relasi ke EssayAnswer, menghubungkan id dari QuestionEssay dengan question_image_id di EssayAnswer
-    public function essayAnswers()
+    public function essay()
     {
-        return $this->hasMany(EssayAnswer::class, 'question_image_id', 'id');
+        return $this->belongsTo(Essay::class);
     }
 }
