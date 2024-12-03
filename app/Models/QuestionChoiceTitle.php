@@ -11,8 +11,10 @@ class QuestionChoiceTitle extends Model
 
     protected $fillable = ['title'];
 
+   
+
     public function questions()
     {
-        return $this->hasMany(QuestionChoice::class);
+        return $this->hasMany(QuestionChoice::class, 'question_choice_id');
     }
 }
