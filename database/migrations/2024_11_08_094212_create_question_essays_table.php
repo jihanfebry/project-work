@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mapels', function (Blueprint $table) {
+        Schema::create('question_essays', function (Blueprint $table) {
             $table->id();
-            $table->string('image')->nullable();
-            $table->string('subject');
-            $table->string('material');
+            $table->foreignId('essay_title_id')->constrained()->onDelete('cascade');
+            $table->text('pertanyaan');
+            $table->text('jawaban');
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mapels');
+        Schema::dropIfExists('question_essays');
     }
 };

@@ -11,11 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('payments', function (Blueprint $table) {
+        Schema::create('question_options', function (Blueprint $table) {
             $table->id();
-            $table->string('status');
-            $table->string('bulan');
+            $table->unsignedBigInteger('question_id');
+            $table->string('pilihan');
             $table->timestamps();
+
+            // Foreign key untuk relasi ke question_choices
+            $table->foreign('question_id')->references('id')->on('question_choices')->onDelete('cascade');
         });
     }
 
@@ -24,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('payments');
+        Schema::dropIfExists('question_options');
     }
 };
