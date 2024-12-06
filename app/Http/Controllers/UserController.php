@@ -86,12 +86,14 @@ class UserController extends Controller
                         // Jika role adalah siswa, insert ke tabel siswas
                         $inserted_siswa = DB::table('siswas')->insert([
                             'name' => $user['name'],
+                            'email' => $user['email'],
                             'user_id' => $inserted
                         ]);
                     } elseif ($user['role'] === 'guru') {
                         // Jika role adalah guru, insert ke tabel gurus
                         $inserted_guru = DB::table('gurus')->insert([
                             'name' => $user['name'],
+                            'email' => $user['email'],
                             'user_id' => $inserted
                         ]);
                     }

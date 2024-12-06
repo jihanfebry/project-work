@@ -85,33 +85,60 @@ class GuruController extends Controller
     {
         $updated = Carbon::now();
 
-        $user = Guru::find($id);
+        $guru = Guru::find($id);
 
-        if (!$user) {
+        if (!$guru) {
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        $request->validate([
-            'no_handphone' => 'required|string|max:15',
-            'email' => 'required|email|unique:gurus,email,' . $id,
+        $validateData = $request->validate([
+            'name' => 'string',
+            'no_handphone' => 'nullable|string|max:15',
+            'email' => 'email|unique:gurus,email,'
         ]);
 
-        $updateSuccess = $user->update([
-            'no_handphone' => $request->no_handphone,
-            'email' => $request->email,
-            'updated_at' => $updated
-        ]);
+        DB::beginTransaction();
 
-        if ($updateSuccess) {
+        try {
+            $guru->fill([
+                'name' => $request->name,
+                'no_handphone' => $request->no_handphone,
+                'email' => $request->email,
+                'updated_at' => $updated
+            ]);
+
+            if ($guru->isDirty()) {
+                $guru->save();
+            }
+
+            if (($request->filled('name') || $request->filled('email')) && $guru->user_id) {
+                $user = $guru->user; // Pastikan ada relasi user di model Siswa
+
+                $dataToUpdate = [];
+                if ($request->filled('name')) {
+                    $dataToUpdate['name'] = $request->name;
+                }
+                if ($request->filled('email')) {
+                    $dataToUpdate['email'] = $request->email;
+                }
+
+                $user->update($dataToUpdate);
+            }
+
+            DB::commit();
+
             return response()->json([
                 'success' => true,
-                'data' => $user
+                'data' => $guru->fresh() // Ambil data terbaru
             ]);
-        } else {
+        } catch (\Exception $e) {
+            DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Update data failed'
-            ]);
+                'message' => 'Update failed',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -121,12 +148,12 @@ class GuruController extends Controller
      */
     public function destroy($id)
     {
-        $user = Guru::find($id);
+        $guru = Guru::find($id);
 
-        if (!$user) {
+        if (!$guru) {
             return response()->json(['message' => 'Guru not found'], 404);
         }
-        $user->delete();
+        $guru->delete();
         return response()->json(['message' => 'Guru deleted successfully']);
     }
 }

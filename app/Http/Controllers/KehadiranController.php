@@ -16,15 +16,18 @@ class KehadiranController extends Controller
     public function index(Request $request)
     {
         $data = DB::table('kehadirans as absensi')
-            ->join('siswas', 'absensi.Siswa_id', '=', 'siswas.id')
-            ->select('absensi.*', 'siswas.name')
-            ->whereDate('absensi.created_at', '=', $request->date)
+            ->join('siswas', 'absensi.siswa_id', '=', 'siswas.id')
+            ->join('kelas', 'absensi.kelas_id', '=', 'kelas.id')
+            ->select('absensi.id', 'absensi.absen', 'siswas.name as nama', 'kelas.kelas as kelas')
+            // ->whereDate('absensi.created_at', '=', $request->date)
             ->get();
 
         return response()->json([
             'data' => $data
         ]);
     }
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -63,7 +66,6 @@ class KehadiranController extends Controller
      */
     public function update(Request $request, $id)
     {
-
         $created = Carbon::now()->format('Y-m-d');
 
         $user = Siswa::find($id);
@@ -76,10 +78,9 @@ class KehadiranController extends Controller
             'absen' => 'in:Hadir,Izin,Sakit,Alpa'
         ]);
 
-        $kehadiran = DB::table('kehadirans')->where('Siswa_id', '=', $user->id)->first();
+        $kehadiran = DB::table('kehadirans')->where('siswa_id', '=', $user->id)->first();
 
         if ($kehadiran) {
-            // Update kehadiran jika sudah ada
             $updateSuccess = DB::table('kehadirans')
                 ->where('id', '=', $kehadiran->id)
                 ->update([
@@ -87,18 +88,40 @@ class KehadiranController extends Controller
                     'updated_at' => $created
                 ]);
         } else {
-            // Insert kehadiran baru jika belum ada
+            $kelas_id = DB::table('siswas')
+                ->where('id', '=', $user->id)
+                ->value('kelas_id');
+            
+            if (!$kelas_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Kelas tidak ditemukan untuk siswa ini'
+                ]);
+            }
+
             $updateSuccess = DB::table('kehadirans')->insert([
-                'Siswa_id' => $user->id, // Pastikan Siswa_id diberikan saat insert
+                'siswa_id' => $user->id,
+                'kelas_id' => $kelas_id,
                 'absen' => $request->absen,
                 'created_at' => $created
             ]);
         }
 
         if ($updateSuccess) {
+            $kelas = DB::table('kelas')
+                ->where('id', $user->kelas_id)
+                ->value('kelas');
+
+            $kelas = $kelas ?: 'Kelas tidak ditemukan';
+
             return response()->json([
-                'success' => 'update kehadiran success',
-                'data' => $user
+                'success' => 'Update kehadiran success',
+                'data' => [
+                    'id' => $user->id,
+                    'nama' => $user->name,
+                    'kelas' => $kelas,
+                    'kehadiran' => $request->absen
+                ]
             ]);
         } else {
             return response()->json([

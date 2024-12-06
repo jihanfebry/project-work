@@ -9,6 +9,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MapelController;
 use App\Http\Controllers\MateriController;
 use App\Http\Controllers\KehadiranController;
+use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\QuestionChoiceController;
 use App\Http\Controllers\TekaTekiController;
@@ -55,7 +56,10 @@ use App\Http\Controllers\LoginAuthController;
         Route::post('/add-teka-teki', [TekaTekiController::class, 'store']); // Untuk menambah teka-teki baru oleh admin
         Route::get('/teka-teki', [TekaTekiController::class, 'index']); // Untuk mendapatkan teka-teki
         Route::post('/teka-teki/cek', [TekaTekiController::class, 'cekJawaban']); // Untuk mengecek jawaban
-    
+
+        Route::post('/absensi', [AbsensiController::class, 'store']);
+        Route::get('/kelas/{kelas_id}/siswa', [AbsensiController::class, 'getSiswaByKelas']);
+
         Route::apiResource('/siswa', SiswaController::class);
         Route::get('/list-siswa', [SiswaController::class, 'listSiswa']);
     
@@ -65,8 +69,8 @@ use App\Http\Controllers\LoginAuthController;
 
         Route::apiResource('/materi', MateriController::class);
     
-        Route::apiResource('/absensi', KehadiranController::class);
+        Route::apiResource('/kehadiran/{id}', KehadiranController::class);
     
         Route::apiResource('/kelas', KelasController::class);
-        Route::get('/listSiswaByKelas', [KelasController::class, 'listSiswaByKelas']);
+        Route::get('/kelas/listSiswaByKelas', [KelasController::class, 'listSiswaByKelas']);
     });
