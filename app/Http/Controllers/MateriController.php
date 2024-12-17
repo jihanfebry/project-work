@@ -37,7 +37,7 @@ class MateriController extends Controller
         $request->validate([
             'subject' => 'required|string|max:255',
             'material' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Validasi gambar jika ada
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         // Cek apakah file gambar ada (tidak required)

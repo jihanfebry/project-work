@@ -139,4 +139,25 @@ class KehadiranController extends Controller
     {
         //
     }
+
+    public function kehadiranPerBulan()
+    {
+        $data = DB::table('kehadirans')
+            ->join('siswas', 'kehadirans.siswa_id', '=', 'siswas.id')
+            ->select(
+                DB::raw("DATE_FORMAT(kehadirans.created_at, '%Y-%m') as bulan"),
+                DB::raw("COUNT(CASE WHEN kehadirans.absen = 'Hadir' THEN 1 END) as hadir"),
+                DB::raw("COUNT(CASE WHEN kehadirans.absen = 'Izin' THEN 1 END) as izin"),
+                DB::raw("COUNT(CASE WHEN kehadirans.absen = 'Sakit' THEN 1 END) as sakit"),
+                DB::raw("COUNT(CASE WHEN kehadirans.absen = 'Alpa' THEN 1 END) as alpa")
+            )
+            ->groupBy(DB::raw("DATE_FORMAT(kehadirans.created_at, '%Y-%m')"))
+            ->orderBy('bulan', 'asc')
+            ->get();
+
+        return response()->json([
+            'data' => $data
+        ]);
+    }
+
 }
