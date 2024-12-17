@@ -24,4 +24,8 @@ class TekaTeki extends Model
         }
         return $clue;
     }
+
+    public function score()
+    {
+        return $this->hasMany(TekaTeki::class);    }
 }

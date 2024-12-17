@@ -9,10 +9,21 @@ class QuestionEssay extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['essay_id', 'pertanyaan', 'jawaban'];
+    protected $fillable = [
+    'essay_id', 
+    'pertanyaan', 
+    'jawaban'
+];
 
     public function essay()
     {
         return $this->belongsTo(Essay::class);
     }
+
+    public function scoreEssay()
+    {
+        return $this->hasMany(QuestionEssay::class);
+    }
+
+
 }
