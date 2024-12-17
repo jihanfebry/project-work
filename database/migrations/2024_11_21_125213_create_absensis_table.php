@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kehadirans', function (Blueprint $table) {
+        Schema::create('absensis', function (Blueprint $table) {
             $table->id();
-            $table->enum('absen', ['Hadir', 'Izin', 'Sakit', 'Alpa'])->default('Hadir');
-            $table->unsignedBigInteger('Siswa_id');
-            $table->foreign('siswa_id')->references('id')->on('siswas');
             $table->unsignedBigInteger('kelas_id');
             $table->foreign('kelas_id')->references('id')->on('kelas');
+            $table->string('data_kehadiran');
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kehadirans');
+        Schema::dropIfExists('absensis');
     }
 };

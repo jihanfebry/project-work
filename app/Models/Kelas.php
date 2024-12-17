@@ -18,4 +18,12 @@ class Kelas extends Model
     {
         return $this->belongsTo(Siswa::class);
     }
+    public function siswa()
+    {
+        return $this->hasMany(Siswa::class);
+    }
+    public function AbsensiType()
+    {
+        return $this->hasMany(Absensi::class);
+    }
 }

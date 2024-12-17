@@ -13,9 +13,7 @@ return new class extends Migration
     {
         Schema::create('mapels', function (Blueprint $table) {
             $table->id();
-            $table->string('image')->nullable();
-            $table->string('subject');
-            $table->string('material');
+            $table->string('mapel');
             $table->timestamps();
         });
     }

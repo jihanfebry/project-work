@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class MapelController extends Controller
 {
     /**
-     * Display a l  isting of the resource.
+     * Display a listing of the resource.
      */
     public function index()
     {
@@ -33,36 +33,27 @@ class MapelController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi data yang dibutuhkan
-        $request->validate([
-            'subject' => 'required|min:5',
-            'material' => 'required|min:5',
-            'image' => 'nullable|image|max:2048', // Validasi gambar
+        $data = DB::table('mapels')->insert([
+            'mapel' => $request->mapel
         ]);
-    
-        // Cek apakah file gambar ada
-        if ($request->hasFile('image')) {
-            // Menggunakan Laravel's store() method untuk menyimpan gambar
-            $imagePath = $request->file('image')->store('images', 'public');
+
+        if ($data) {
+            return response()->json([
+                'success' => true,
+                'data' => $data
+            ]);
         } else {
-            $imagePath = null;
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to add data'
+            ], 403);
         }
-    
-        // Simpan data ke database menggunakan Model Eloquent
-        $mapel = new Mapel();
-        $mapel->subject = $request->subject;
-        $mapel->material = $request->material;
-        $mapel->image = $imagePath;
-        $mapel->save();
-    
-        return response()->json([
-            'success' => true,
-            'data' => $mapel
-        ]);
     }
     
 
-
+    /**
+     * Display the specified resource.
+     */
     public function show(Mapel $mapel)
     {
         //
@@ -79,54 +70,54 @@ class MapelController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Mapel $mapel)
+    public function update(Request $request, $id)
     {
-        if (!$mapel) {
-            return response()->json(['message' => 'Mapel tidak ditemukan'], 404);
-        }
-    
-        // Validasi data yang dibutuhkan
+        // Validasi input request
         $request->validate([
-            'material' => 'required|min:5',
-            'subject' => 'required|min:5',
+            'mapel' => 'required|string|max:255',
         ]);
-    
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = $image->getClientOriginalName();
-            $image->move(public_path('image'), $imageName);
-            $imagePath = 'image/' . $imageName;
-        } else {
-            // Jika tidak ada gambar baru, tetap gunakan gambar yang ada
-            $imagePath = $mapel->image;
-        }
-    
-        // Update data di database
-        $updateSuccess = $mapel->update([
-            'image' => $imagePath, // Simpan path gambar yang baru atau tetap
-            'material' => $request->input('material'),
-            'subject' => $request->input('subject'),
-        ]);
-    
-        if ($updateSuccess) {
-            return response()->json([
-                'success' => true,
-                'data' => $mapel,
-            ]);
-        } else {
+
+        // Cari mapel berdasarkan ID
+        $mapel = Mapel::find($id);
+
+        if (!$mapel) {
             return response()->json([
                 'success' => false,
-                'message' => 'Update gagal',
-            ], 500);
+                'message' => 'Mapel not found'
+            ], 404);
         }
-    }
 
+        // Update mapel
+        $mapel->mapel = $request->mapel;
+        $mapel->save();
+
+        return response()->json([
+            'success' => true,
+            'data' => $mapel
+        ]);
+    }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(mapel $mapel)
+    public function destroy($id)
     {
-        //
+        // Cari mapel berdasarkan ID
+        $mapel = Mapel::find($id);
+
+        if (!$mapel) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Mapel not found'
+            ], 404);
+        }
+
+        // Hapus mapel
+        $mapel->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Mapel deleted successfully'
+        ]);
     }
 }
