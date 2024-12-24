@@ -53,7 +53,7 @@ class SiswaController extends Controller
             'name' => $request->name,
             'birth_date' => $request->birth_date,
             'gender' => $request->gender,
-            // 'class' => $request->class,
+            'class' => $request->class,
             'parent' => $request->parent,
             'phone_number' => $request->phone_number,
             'email' => $request->email,

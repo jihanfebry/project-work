@@ -6,16 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 
-class Kehadiran extends Model
+class Siswa extends Model
 {
     use HasFactory;
 
-    protected $guarded = [
-        'id'
-    ];
+    protected $guarded = ['id'];
 
-    public function SiswaType()
+    // Relasi: Siswa memiliki banyak Kehadiran
+    public function kehadirans()
     {
-        return $this->hasMany(Siswa::class);
+        return $this->hasMany(Kehadiran::class, 'Siswa_id');
     }
 }

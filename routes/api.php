@@ -83,5 +83,6 @@ use App\Http\Controllers\QuestionEssayController;
         Route::apiResource('/absensi', KehadiranController::class);
     
         Route::apiResource('/kelas', KelasController::class);
+        Route::middleware('auth:api')->post('/kelas', [KelasController::class, 'store']);
         Route::get('/listSiswaByKelas', [KelasController::class, 'listSiswaByKelas']);
     });

@@ -39,8 +39,61 @@ class KehadiranController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validasi data yang diterima dari frontend
+        $request->validate([
+            'attendance' => 'required|array', // Data absensi berupa array
+            'attendance.*.Siswa_id' => 'required|exists:siswas,id', // Validasi setiap siswa harus terdaftar
+            'attendance.*.absen' => 'required|in:Hadir,Izin,Sakit,Alpa', // Validasi status absensi
+            'date' => 'required|date', // Validasi tanggal absensi
+        ]);
+    
+        // Konversi tanggal ke format yang konsisten
+        $date = Carbon::parse($request->date)->format('Y-m-d');
+    
+        $dataToInsert = [];
+        $dataToUpdate = [];
+    
+        foreach ($request->attendance as $data) {
+            $existing = Kehadiran::where('Siswa_id', $data['Siswa_id'])
+                ->whereDate('created_at', $date)
+                ->first();
+    
+            if ($existing) {
+                // Jika data sudah ada, tambahkan ke batch update
+                $dataToUpdate[] = [
+                    'id' => $existing->id,
+                    'absen' => $data['absen'],
+                    'updated_at' => now(),
+                ];
+            } else {
+                // Jika data belum ada, tambahkan ke batch insert
+                $dataToInsert[] = [
+                    'Siswa_id' => $data['Siswa_id'],
+                    'absen' => $data['absen'],
+                    'created_at' => $date,
+                    'updated_at' => now(),
+                ];
+            }
+        }
+    
+        // Update data yang sudah ada
+        foreach ($dataToUpdate as $update) {
+            Kehadiran::where('id', $update['id'])->update([
+                'absen' => $update['absen'],
+                'updated_at' => $update['updated_at'],
+            ]);
+        }
+    
+        // Insert data baru ke database
+        if (!empty($dataToInsert)) {
+            Kehadiran::insert($dataToInsert);
+        }
+    
+        return response()->json([
+            'message' => 'Data absensi berhasil disimpan',
+        ]);
     }
+    
 
     /**
      * Display the specified resource.

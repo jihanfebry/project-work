@@ -25,6 +25,7 @@ return new class extends Migration
             // $table->foreign('kelas_id')->references('id')->on('kelas'); // Pastikan kelas_id didefinisikan sebelumnya
             $table->timestamps();
             
+            $table->foreignId('kelas_id')->nullable()->constrained('kelas')->onDelete('cascade');
             // Definisikan foreign key untuk user_id
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
